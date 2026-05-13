@@ -5,46 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valuation B3 - Brapi</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        .inputs { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        label { display: flex; flex-direction: column; font-weight: bold; color: #555; }
-        input { padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        input[type="number"] { width: 120px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0056b3; }
-        #updateBtn { background: #28a745; }
-        #updateBtn:hover { background: #218838; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px 8px; text-align: right; }
-        th { background: #f8f9fa; font-weight: bold; text-align: left; }
-        th:first-child, td:first-child { text-align: left; }
-        .price, .precoTeto { font-weight: bold; font-size: 16px; }
-        .positive { color: #28a745; }
-        .negative { color: #dc3545; }
-        .red-row { background-color: #ffebee !important; }
-        .error-row { background-color: #fff3e0 !important; }
-        .error { color: #dc3545; font-weight: bold; }
-        .remove button { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 14px; width: 30px; height: 30px; }
-        .remove button:hover { background: #c82333; }
-        #errorMsg { display: none; color: #dc3545; background: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; border-radius: 4px; margin-bottom: 20px; }
-        #errorMsg.show { display: block; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f9f9f9; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; text-align: center; }
+        .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { padding: 12px; flex: 1; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        button { padding: 12px 24px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { opacity: 0.9; }
+        .update-btn { background: #4caf50; display: block; margin: 0 auto 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background: #f4f4f4; text-align: left; font-weight: bold; }
+        td:first-child, th:first-child { text-align: left; font-weight: bold; }
+        .negative { background-color: #ffebee !important; }
+        .negative-chg { color: #d32f2f; font-weight: bold; }
+        tr:hover { background: #f5f5f5; }
+        .remove-btn { background: #f44336; padding: 6px 12px; font-size: 14px; }
         p { text-align: center; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Valuation B3 - Brapi</h1>
-        <div class="inputs">
-            <label>Token (opcional): <input id="token" placeholder="token da Brapi (opcional)"></label>
-            <label>Ticker: <input id="ticker" placeholder="ex: PETR4" maxlength="10"></label>
-            <label>Preço Teto: <input id="precoTeto" type="number" step="0.01" min="0.01" placeholder="35.00"></label>
-            <button id="addBtn">Adicionar</button>
-            <button id="updateBtn">Atualizar Agora</button>
+        <h1>Valuation B3</h1>
+        <div class="add-form">
+            <input id="ticker" placeholder="Ticker ex: BBSE3" maxlength="10" style="text-transform: uppercase;">
+            <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto ex: 30.00">
+            <button onclick="addAsset()">Adicionar</button>
         </div>
-        <div id="errorMsg"></div>
-        <table id="table">
+        <button class="update-btn" onclick="updatePortfolio()">Atualizar Agora</button>
+        <table>
             <thead>
                 <tr>
                     <th>TICKER</th>
@@ -55,193 +44,164 @@
                     <th>UPSIDE %</th>
                     <th>DOWNSIDE %</th>
                     <th>DATA SALVO</th>
-                    <th>X</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="tbody"></tbody>
         </table>
-        <p>Atualização automática a cada 15 minutos.</p>
+        <p>Atualização automática a cada 15 minutos. Dados via <a href="https://brapi.dev" target="_blank">Brapi</a>.</p>
     </div>
+
     <script>
-        let valuations = JSON.parse(localStorage.getItem('valuations') || '[]');
-        let token = localStorage.getItem('token') || '';
+        let portfolio = [];
 
-        const tokenInput = document.getElementById('token');
-        const tickerInput = document.getElementById('ticker');
-        const precoTetoInput = document.getElementById('precoTeto');
-        const addBtn = document.getElementById('addBtn');
-        const updateBtn = document.getElementById('updateBtn');
-        const tbody = document.getElementById('tbody');
-        const errorMsg = document.getElementById('errorMsg');
-
-        tokenInput.value = token;
-
-        function saveToken() {
-            token = tokenInput.value.trim();
-            localStorage.setItem('token', token);
-        }
-        tokenInput.addEventListener('change', saveToken);
-        tokenInput.addEventListener('blur', saveToken);
-
-        function saveValuations() {
-            localStorage.setItem('valuations', JSON.stringify(valuations));
+        function loadPortfolio() {
+            try {
+                const saved = localStorage.getItem('valuationPortfolio');
+                portfolio = saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                console.error('Erro ao carregar portfolio:', e);
+                portfolio = [];
+            }
         }
 
-        function formatCurrency(num) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
-        }
-
-        function formatPercent(num) {
-            return new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 2 }).format(num / 100);
+        function savePortfolio() {
+            try {
+                localStorage.setItem('valuationPortfolio', JSON.stringify(portfolio));
+            } catch (e) {
+                console.error('Erro ao salvar portfolio:', e);
+            }
         }
 
         function renderTable() {
-            tbody.innerHTML = '';
-            valuations.forEach((val) => {
-                const row = document.createElement('tr');
-                row.dataset.ticker = val.ticker;
-                row.innerHTML = `
-                    <td>${val.ticker}</td>
-                    <td class="price">--</td>
-                    <td class="chg">--</td>
-                    <td class="dy">--</td>
-                    <td class="precoTeto">${formatCurrency(val.precoTeto)}</td>
-                    <td class="upside">--</td>
-                    <td class="downside">--</td>
-                    <td>${val.dataSalvo}</td>
-                    <td class="remove"><button onclick="removeItem('${val.ticker}')">X</button></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = portfolio.map((item, i) => {
+                let priceText = 'Carregando...';
+                let chgText = '';
+                let dyText = '';
+                let upsideText = '';
+                let downsideText = '';
+                let rowClass = '';
+                let chgClass = '';
 
-        window.removeItem = function(ticker) {
-            valuations = valuations.filter(v => v.ticker !== ticker);
-            saveValuations();
-            renderTable();
-        };
+                if (item.error) {
+                    priceText = item.error;
+                } else if (item.price !== undefined && item.price !== null) {
+                    const fmtCurrency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+                    const fmtPercent = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        async function fetchQuote(ticker) {
-            try {
-                const url = `https://brapi.dev/api/quote/${ticker.toUpperCase()}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
-                console.log('Fetching:', url);
-                const response = await fetch(url);
-                const data = await response.json();
-                console.log('API response for', ticker, data);
-                if (data.results && data.results.length > 0) {
-                    const quote = data.results[0];
-                    return {
-                        price: quote.price || 0,
-                        chgPercent: quote.chgPercent || 0,
-                        dividendYield: quote.dividendYield || 0
-                    };
-                } else {
-                    throw new Error('Sem resultados');
+                    priceText = fmtCurrency.format(item.price);
+                    chgText = fmtPercent.format(item.chgPercent || 0);
+                    dyText = fmtPercent.format(item.dividendYield || 0);
+
+                    if (item.price > 0) {
+                        const upside = ((item.teto - item.price) / item.price) * 100;
+                        upsideText = fmtPercent.format(upside / 100);
+                        const downside = ((item.price - item.teto) / item.price) * 100;
+                        downsideText = fmtPercent.format(downside / 100);
+
+                        if (upside <= 0) {
+                            rowClass = 'negative';
+                        }
+                    }
+
+                    if (item.chgPercent !== undefined && item.chgPercent < 0) {
+                        chgClass = 'negative-chg';
+                    }
                 }
-            } catch (e) {
-                console.error('Erro ao buscar', ticker, e);
-                return { error: true };
-            }
+
+                const tetoText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.teto);
+
+                return `
+                    <tr class="${rowClass}">
+                        <td>${item.ticker}</td>
+                        <td>${priceText}</td>
+                        <td class="${chgClass}">${chgText}</td>
+                        <td>${dyText}</td>
+                        <td>${tetoText}</td>
+                        <td>${upsideText}</td>
+                        <td>${downsideText}</td>
+                        <td>${item.data}</td>
+                        <td><button class="remove-btn" onclick="removeItem(${i})" title="Remover">X</button></td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        function updateRow(ticker, data) {
-            const row = tbody.querySelector(`[data-ticker="${ticker}"]`);
-            if (!row) return;
+        async function updatePortfolio() {
+            const promises = portfolio.map(async (item) => {
+                try {
+                    const response = await fetch(`https://brapi.dev/api/quote/${item.ticker}?token=n26fz9g1XjjNzzrFJrcqf6`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    const data = await response.json();
+                    console.log(`API Response for ${item.ticker}:`, data);
 
-            const priceCell = row.querySelector('.price');
-            const chgCell = row.querySelector('.chg');
-            const dyCell = row.querySelector('.dy');
-            const upsideCell = row.querySelector('.upside');
-            const downsideCell = row.querySelector('.downside');
+                    const results = data.results;
+                    if (results && results.length > 0) {
+                        const quote = results[0];
+                        item.price = quote.price;
+                        item.chgPercent = quote.chgPercent;
+                        item.dividendYield = quote.dividendYield || 0;
+                        delete item.error;
+                    } else {
+                        item.error = 'Sem dados na API';
+                    }
+                } catch (error) {
+                    console.error(`Erro ao buscar ${item.ticker}:`, error);
+                    item.error = `Erro: ${error.message}`;
+                }
+            });
 
-            const val = valuations.find(v => v.ticker === ticker);
-            const precoTeto = val ? val.precoTeto : 0;
-
-            if (data.error) {
-                priceCell.textContent = 'Erro';
-                priceCell.className = 'price error';
-                chgCell.textContent = '—';
-                chgCell.className = 'chg';
-                dyCell.textContent = '—';
-                dyCell.className = 'dy';
-                upsideCell.textContent = '—';
-                downsideCell.textContent = '—';
-                row.classList.add('error-row');
-                row.classList.remove('red-row');
-                return;
-            }
-
-            const price = data.price || 0;
-            const chg = data.chgPercent || 0;
-            const dy = data.dividendYield || 0;
-
-            priceCell.textContent = formatCurrency(price);
-            priceCell.className = 'price';
-
-            chgCell.textContent = formatPercent(chg);
-            chgCell.className = `chg ${chg >= 0 ? 'positive' : 'negative'}`;
-
-            dyCell.textContent = formatPercent(dy);
-            dyCell.className = 'dy positive';
-
-            const upside = price > 0 ? ((precoTeto - price) / price * 100) : 0;
-            upsideCell.textContent = formatPercent(upside);
-            upsideCell.className = `upside ${upside > 0 ? 'positive' : 'negative'}`;
-
-            const downside = precoTeto > 0 ? ((price - precoTeto) / precoTeto * 100) : 0;
-            downsideCell.textContent = formatPercent(downside);
-            downsideCell.className = `downside ${downside > 0 ? 'negative' : 'positive'}`;
-
-            if (upside <= 0) {
-                row.classList.add('red-row');
-            } else {
-                row.classList.remove('red-row');
-            }
-            row.classList.remove('error-row');
-        }
-
-        async function updateAll() {
-            errorMsg.classList.remove('show');
-            errorMsg.textContent = '';
-            for (const val of valuations) {
-                const data = await fetchQuote(val.ticker);
-                updateRow(val.ticker, data);
-            }
-        }
-
-        addBtn.addEventListener('click', () => {
-            const ticker = tickerInput.value.trim().toUpperCase();
-            const precoTetoStr = precoTetoInput.value.trim();
-            if (!ticker || !/^[A-Z0-9]{1,10}$/.test(ticker) || valuations.some(v => v.ticker === ticker)) {
-                showError('Ticker inválido ou já existe (ex: PETR4).');
-                return;
-            }
-            const precoTeto = parseFloat(precoTetoStr);
-            if (isNaN(precoTeto) || precoTeto <= 0) {
-                showError('Preço Teto deve ser um número > 0.');
-                return;
-            }
-            const dataSalvo = new Date().toLocaleString('pt-BR');
-            valuations.push({ ticker, precoTeto, dataSalvo });
-            saveValuations();
-            tickerInput.value = '';
-            precoTetoInput.value = '';
+            await Promise.all(promises);
+            savePortfolio();
             renderTable();
-            updateAll();
-        });
-
-        updateBtn.addEventListener('click', updateAll);
-
-        function showError(msg) {
-            errorMsg.textContent = msg;
-            errorMsg.classList.add('show');
-            setTimeout(() => errorMsg.classList.remove('show'), 4000);
         }
 
-        // Inicialização
-        renderTable();
-        updateAll();
-        setInterval(updateAll, 15 * 60 * 1000);
+        function addAsset() {
+            const tickerInput = document.getElementById('ticker');
+            const tetoInput = document.getElementById('teto');
+            const ticker = tickerInput.value.toUpperCase().trim();
+            const teto = parseFloat(tetoInput.value);
+
+            if (!ticker || isNaN(teto) || teto <= 0) {
+                alert('Informe Ticker válido e Preço Teto > 0!');
+                return;
+            }
+
+            if (portfolio.some(p => p.ticker === ticker)) {
+                alert('Ticker já adicionado!');
+                return;
+            }
+
+            portfolio.push({
+                ticker,
+                teto,
+                data: new Date().toLocaleDateString('pt-BR')
+            });
+
+            savePortfolio();
+            renderTable();
+            tickerInput.value = '';
+            tetoInput.value = '';
+            tickerInput.focus();
+        }
+
+        function removeItem(index) {
+            if (confirm(`Remover ${portfolio[index].ticker}?`)) {
+                portfolio.splice(index, 1);
+                savePortfolio();
+                renderTable();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadPortfolio();
+            renderTable();
+            updatePortfolio();
+            setInterval(updatePortfolio, 15 * 60 * 1000); // 15 min
+        });
     </script>
 </body>
 </html>
