@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valuation de Ações - Brapi</title>
+    <style>
+        body {
+            background: #121212;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            background: #1e1e1e;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="text"]::placeholder {
+            color: #888;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        #error {
+            background: #dc3545;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        #loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background: #333;
+            font-weight: bold;
+        }
+        .positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        #info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            color: #ccc;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪙 Valuation de Ações - Brapi API</h1>
+        
+        <div class="input-group">
+            <label for="token">Token Brapi (opcional):</label>
+            <input type="text" id="token" placeholder="Cole sua chave API gratuita da Brapi aqui...">
+            <div id="message"></div>
+        </div>
+        
+        <div class="input-group">
+            <label for="symbols">Símbolos (ex: PETR4,VALE3,ITUB4):</label>
+            <input type="text" id="symbols" placeholder="Digite os símbolos separados por vírgula">
+        </div>
+        
+        <div class="input-group">
+            <label>
+                <input type="checkbox" id="autoUpdateChk"> Auto-update a cada 15 minutos
+            </label>
+        </div>
+        
+        <button onclick="fetchQuotes()">🔍 Buscar Cotações</button>
+        
+        <div id="loading" style="display: none;">⏳ Carregando cotações...</div>
+        <div id="error" style="display: none;"></div>
+        
+        <table id="quotesTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Símbolo</th>
+                    <th>Preço Atual</th>
+                    <th>Variação %</th>
+                    <th>Mínima</th>
+                    <th>Máxima</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        
+        <div id="info">Última atualização: -- | Requisições hoje: 0</div>
+    </div>
+    
+    <script>
+        const TOKEN_KEY = 'brapiToken';
+        const SYMBOLS_KEY = 'savedSymbols';
+        const DATA_KEY = 'stockData';
+        const LAST_UPDATE_KEY = 'lastUpdate';
+        const REQUESTS_KEY = 'requestsToday';
+        let requestCount = 0;
+        let autoInterval;
+
+        function loadToken() {
+            const token = localStorage.getItem(TOKEN_KEY);
+            const input = document.getElementById('token');
+            if (token) {
+                input.value = token;
+            }
+            updateMessage();
+        }
+
+        function saveToken() {
+            const token = document.getElementById('token').value.trim();
+            if (token) {
+                localStorage.setItem(TOKEN_KEY, token);
+            } else {
+                localStorage.removeItem(TOKEN_KEY);
+            }
+            updateMessage();
+        }
+
+        function updateMessage() {
+            const token = document.getElementById('token').value.trim();
+            const msgEl = document.getElementById('message');
+            const msg = token ? '✅ Com token Free: 15.000 req/mês' : '⚠️ Sem token: limite ~100 req/dia';
+            msgEl.textContent = msg;
+            msgEl.style.background = token ? '#28a745' : '#ffc107';
+            msgEl.style.color = token ? 'white' : '#333';
+        }
+
+        function loadRequestCount() {
+            const today = new Date().toDateString();
+            let counts = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '{}');
+            if (counts.date !== today) {
+                counts = { date: today, count: 0 };
+                localStorage.setItem(REQUESTS_KEY, JSON.stringify(counts));
+            }
+            requestCount = counts.count;
+        }
+
+        function incrementRequest() {
+            const today = new Date().toDateString();
+            let counts = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '{}');
+            if (counts.date !== today) {
+                counts = { date: today, count: 0 };
+            }
+            counts.count++;
+            localStorage.setItem(REQUESTS_KEY, JSON.stringify(counts));
+            requestCount = counts.count;
+        }
+
+        function updateInfo() {
+            const lastUpdate = localStorage.getItem(LAST_UPDATE_KEY);
+            const time = lastUpdate ? new Date(lastUpdate).toLocaleString('pt-BR') : '--';
+            document.getElementById('info').textContent = `Última atualização: ${time} | Requisições hoje: ${requestCount}`;
+        }
+
+        async function fetchQuotes() {
+            const symbolsInput = document.getElementById('symbols').value.trim();
+            if (!symbolsInput) {
+                alert('Digite pelo menos um símbolo!');
+                return;
+            }
+            const symbols = symbolsInput.split(',').map(s => s.trim().toUpperCase()).filter(s => s).join(',');
+            const token = localStorage.getItem(TOKEN_KEY);
+            const url = `https://brapi.dev/api/quote/${symbols}${token ? `?token=${token}` : ''}`;
+
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const tableEl = document.getElementById('quotesTable');
+
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            tableEl.style.display = 'none';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.results && data.results.length > 0) {
+                    displayQuotes(data.results);
+                    localStorage.setItem(DATA_KEY, JSON.stringify(data.results));
+                    localStorage.setItem(LAST_UPDATE_KEY, new Date().toISOString());
+                    incrementRequest();
+                    updateInfo();
+                } else {
+                    throw new Error('Nenhum dado encontrado para os símbolos informados.');
+                }
+            } catch (err) {
+                errorEl.textContent = `Erro: ${err.message}`;
+                errorEl.style.display = 'block';
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        function displayQuotes(quotes) {
+            const tbody = document.querySelector('#quotesTable tbody');
+            tbody.innerHTML = '';
+            quotes.forEach(q => {
+                const row = tbody.insertRow();
+                const chgClass = (q.chgPercent || 0) >= 0 ? 'positive' : 'negative';
+                row.innerHTML = `
+                    <td><strong>${q.symbol || '-'}</strong></td>
+                    <td>${q.price ? 'R$ ' + q.price.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
+                    <td class="${chgClass}">${q.chgPercent ? q.chgPercent.toFixed(2) + '%' : '-'}</td>
+                    <td>${q.low ? 'R$ ' + q.low.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
+                    <td>${q.high ? 'R$ ' + q.high.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
+                    <td>${q.volume ? q.volume.toLocaleString('pt-BR') : '-'}</td>
+                `;
+            });
+            document.getElementById('quotesTable').style.display = 'table';
+        }
+
+        function toggleAutoUpdate() {
+            const chk = document.getElementById('autoUpdateChk');
+            if (chk.checked) {
+                fetchQuotes();
+                autoInterval = setInterval(fetchQuotes, 15 * 60 * 1000);
+            } else {
+                if (autoInterval) {
+                    clearInterval(autoInterval);
+                }
+            }
+        }
+
+        // Inicialização
+        window.addEventListener('load', () => {
+            loadToken();
+            const savedSymbols = localStorage.getItem(SYMBOLS_KEY);
+            if (savedSymbols) {
+                document.getElementById('symbols').value = savedSymbols;
+            }
+            loadRequestCount();
+            updateInfo();
+            const savedData = localStorage.getItem(DATA_KEY);
+            if (savedData) {
+                displayQuotes(JSON.parse(savedData));
+            }
+        });
+
+        // Event listeners
+        document.getElementById('token').addEventListener('input', saveToken);
+        document.getElementById('symbols').addEventListener('blur', function() {
+            localStorage.setItem(SYMBOLS_KEY, this.value);
+        });
+        document.getElementById('autoUpdateChk').addEventListener('change', toggleAutoUpdate);
+
+        // Enter para buscar
+        document.getElementById('symbols').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                fetchQuotes();
+            }
+        });
+    </script>
+</body>
+</html>
