@@ -3,205 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valuation B3 - Brapi</title>
+    <title>Valuation B3 - VERSÃO DEBUG</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f9f9f9; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #333; text-align: center; }
-        .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { padding: 12px; flex: 1; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
-        button { padding: 12px 24px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { opacity: 0.9; }
-        .update-btn { background: #4caf50; display: block; margin: 0 auto 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
-        th { background: #f4f4f4; text-align: left; font-weight: bold; }
-        td:first-child, th:first-child { text-align: left; font-weight: bold; }
-        .negative { background-color: #ffebee !important; }
-        .negative-chg { color: #d32f2f; font-weight: bold; }
-        tr:hover { background: #f5f5f5; }
-        .remove-btn { background: #f44336; padding: 6px 12px; font-size: 14px; }
-        p { text-align: center; color: #666; font-style: italic; }
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        #debug { background: #f0f8ff; border: 2px solid #007bff; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        #debug h2 { color: #007bff; }
+        #debug p { margin: 10px 0; }
+        #debug pre { background: #fff; padding: 10px; border: 1px solid #ddd; max-height: 300px; overflow-y: auto; }
+        #test-response { margin-top: 10px; background: #e8f5e8; padding: 10px; border-radius: 4px; }
+        #app { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { padding: 10px; font-size: 16px; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; }
+        .carregando { color: orange; font-style: italic; }
+        .erro { color: red; }
+        .preco { font-weight: bold; color: green; }
+        #tabela tbody tr:nth-child(even) { background: #f8f9fa; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Valuation B3</h1>
-        <div class="add-form">
-            <input id="ticker" placeholder="Ticker ex: BBSE3" maxlength="10" style="text-transform: uppercase;">
-            <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto ex: 30.00">
-            <button onclick="addAsset()">Adicionar</button>
-        </div>
-        <button class="update-btn" onclick="updatePortfolio()">Atualizar Agora</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>TICKER</th>
-                    <th>PREÇO ATUAL</th>
-                    <th>VARIAÇÃO %</th>
-                    <th>DY %</th>
-                    <th>PREÇO TETO</th>
-                    <th>UPSIDE %</th>
-                    <th>DOWNSIDE %</th>
-                    <th>DATA SALVO</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tbody"></tbody>
-        </table>
-        <p>Atualização automática a cada 15 minutos. Dados via <a href="https://brapi.dev" target="_blank">Brapi</a>.</p>
+    <!-- SEÇÃO DEBUG -->
+    <div id="debug">
+        <h2>🔍 DEBUG INFO (Última Requisição)</h2>
+        <p><strong>URL exata:</strong> <span id="debug-url">-</span></p>
+        <p><strong>Status:</strong> <span id="debug-status">-</span></p>
+        <p><strong>JSON completo:</strong></p>
+        <pre id="debug-json">-</pre>
+        <p><strong>Erro:</strong> <span id="debug-error">-</span></p>
+        <button id="btn-teste-api">🧪 Teste API BBSE3</button>
+        <div id="test-response">Clique no botão para testar.</div>
     </div>
 
+    <!-- APLICAÇÃO PRINCIPAL -->
+    <h1>Valuation B3</h1>
+    <div id="inputs">
+        <input id="ticker-input" placeholder="Ticker (ex: BBSE3)" maxlength="10">
+        <input id="preco-teto-input" type="number" step="0.01" placeholder="Preço Teto" min="0">
+        <button id="btn-adicionar">➕ Adicionar</button>
+    </div>
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Preço Atual</th>
+                <th>Preço Teto</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <p><em>Auto-update a cada 15 minutos. Dados de <a href="https://brapi.dev" target="_blank">brapi.dev</a>.</em></p>
+
     <script>
+        const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
         let portfolio = [];
 
-        function loadPortfolio() {
-            try {
-                const saved = localStorage.getItem('valuationPortfolio');
-                portfolio = saved ? JSON.parse(saved) : [];
-            } catch (e) {
-                console.error('Erro ao carregar portfolio:', e);
-                portfolio = [];
-            }
+        // Carregar do LocalStorage
+        function carregarPortfolio() {
+            const salvo = localStorage.getItem('valuationB3Portfolio');
+            portfolio = salvo ? JSON.parse(salvo) : [];
+            renderizarTabela();
         }
 
-        function savePortfolio() {
-            try {
-                localStorage.setItem('valuationPortfolio', JSON.stringify(portfolio));
-            } catch (e) {
-                console.error('Erro ao salvar portfolio:', e);
-            }
+        // Salvar no LocalStorage
+        function salvarPortfolio() {
+            localStorage.setItem('valuationB3Portfolio', JSON.stringify(portfolio));
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('tbody');
-            tbody.innerHTML = portfolio.map((item, i) => {
-                let priceText = 'Carregando...';
-                let chgText = '';
-                let dyText = '';
-                let upsideText = '';
-                let downsideText = '';
-                let rowClass = '';
-                let chgClass = '';
-
-                if (item.error) {
-                    priceText = item.error;
-                } else if (item.price !== undefined && item.price !== null) {
-                    const fmtCurrency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-                    const fmtPercent = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                    priceText = fmtCurrency.format(item.price);
-                    chgText = fmtPercent.format(item.chgPercent || 0);
-                    dyText = fmtPercent.format(item.dividendYield || 0);
-
-                    if (item.price > 0) {
-                        const upside = ((item.teto - item.price) / item.price) * 100;
-                        upsideText = fmtPercent.format(upside / 100);
-                        const downside = ((item.price - item.teto) / item.price) * 100;
-                        downsideText = fmtPercent.format(downside / 100);
-
-                        if (upside <= 0) {
-                            rowClass = 'negative';
-                        }
-                    }
-
-                    if (item.chgPercent !== undefined && item.chgPercent < 0) {
-                        chgClass = 'negative-chg';
-                    }
-                }
-
-                const tetoText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.teto);
-
-                return `
-                    <tr class="${rowClass}">
-                        <td>${item.ticker}</td>
-                        <td>${priceText}</td>
-                        <td class="${chgClass}">${chgText}</td>
-                        <td>${dyText}</td>
-                        <td>${tetoText}</td>
-                        <td>${upsideText}</td>
-                        <td>${downsideText}</td>
-                        <td>${item.data}</td>
-                        <td><button class="remove-btn" onclick="removeItem(${i})" title="Remover">X</button></td>
-                    </tr>
+        // Renderizar tabela
+        function renderizarTabela() {
+            const tbody = document.querySelector('#tabela tbody');
+            tbody.innerHTML = '';
+            portfolio.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.ticker}</td>
+                    <td id="preco-${item.ticker}" class="carregando">Carregando...</td>
+                    <td>${parseFloat(item.precoTeto).toFixed(2)}</td>
+                    <td id="status-${item.ticker}">-</td>
+                    <td><button onclick="removerTicker('${item.ticker}')">❌ Remover</button></td>
                 `;
-            }).join('');
+                tbody.appendChild(tr);
+                // Buscar preço imediatamente
+                buscarPreco(item.ticker);
+            });
         }
 
-        async function updatePortfolio() {
-            const promises = portfolio.map(async (item) => {
-                try {
-                    const response = await fetch(`https://brapi.dev/api/quote/${item.ticker}?token=n26fz9g1XjjNzzrFJrcqf6`);
+        // Buscar preço (com DEBUG)
+        function buscarPreco(ticker) {
+            const url = `https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`;
+            console.log('🚀 ANTES da requisição:', { ticker, url });
+
+            // Atualizar DEBUG
+            document.getElementById('debug-url').textContent = url;
+            document.getElementById('debug-status').textContent = 'Enviando...';
+            document.getElementById('debug-json').textContent = '';
+            document.getElementById('debug-error').textContent = '';
+
+            const startTime = Date.now();
+            fetch(url)
+                .then(async (response) => {
+                    const tempo = Date.now() - startTime;
+                    console.log('📥 RESPOSTA recebida:', { ticker, status: response.status, tempo });
+                    document.getElementById('debug-status').textContent = `${response.status} (${tempo}ms)`;
+
                     if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                     }
-                    const data = await response.json();
-                    console.log(`API Response for ${item.ticker}:`, data);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ JSON completo:', { ticker, data });
+                    document.getElementById('debug-json').textContent = JSON.stringify(data, null, 2);
 
-                    const results = data.results;
-                    if (results && results.length > 0) {
-                        const quote = results[0];
-                        item.price = quote.price;
-                        item.chgPercent = quote.chgPercent;
-                        item.dividendYield = quote.dividendYield || 0;
-                        delete item.error;
-                    } else {
-                        item.error = 'Sem dados na API';
-                    }
-                } catch (error) {
-                    console.error(`Erro ao buscar ${item.ticker}:`, error);
-                    item.error = `Erro: ${error.message}`;
-                }
-            });
-
-            await Promise.all(promises);
-            savePortfolio();
-            renderTable();
+                    const result = data.results?.[0];
+                    const preco = result?.regularMarketPrice || 'N/D';
+                    atualizarLinha(ticker, preco, 'OK');
+                })
+                .catch(erro => {
+                    console.error('❌ ERRO COMPLETO:', { ticker, erro: erro.message, stack: erro.stack });
+                    document.getElementById('debug-error').textContent = erro.message;
+                    atualizarLinha(ticker, 'Erro', erro.message);
+                });
         }
 
-        function addAsset() {
-            const tickerInput = document.getElementById('ticker');
-            const tetoInput = document.getElementById('teto');
-            const ticker = tickerInput.value.toUpperCase().trim();
-            const teto = parseFloat(tetoInput.value);
+        // Atualizar linha da tabela
+        function atualizarLinha(ticker, preco, status) {
+            const elPreco = document.getElementById(`preco-${ticker}`);
+            const elStatus = document.getElementById(`status-${ticker}`);
+            if (elPreco) {
+                elPreco.textContent = typeof preco === 'number' ? preco.toFixed(2) : preco;
+                elPreco.className = preco === 'Erro' ? 'erro' : (preco === 'Carregando...' ? 'carregando' : 'preco');
+            }
+            if (elStatus) elStatus.textContent = status;
+        }
 
-            if (!ticker || isNaN(teto) || teto <= 0) {
-                alert('Informe Ticker válido e Preço Teto > 0!');
+        // Adicionar ticker
+        document.getElementById('btn-adicionar').onclick = () => {
+            const ticker = document.getElementById('ticker-input').value.toUpperCase().trim();
+            const precoTeto = parseFloat(document.getElementById('preco-teto-input').value);
+            if (!ticker || isNaN(precoTeto) || precoTeto <= 0) {
+                alert('Informe ticker válido e preço teto > 0');
                 return;
             }
-
-            if (portfolio.some(p => p.ticker === ticker)) {
-                alert('Ticker já adicionado!');
+            if (portfolio.find(p => p.ticker === ticker)) {
+                alert('Ticker já adicionado');
                 return;
             }
+            portfolio.push({ ticker, precoTeto });
+            salvarPortfolio();
+            renderizarTabela();
+            document.getElementById('ticker-input').value = '';
+            document.getElementById('preco-teto-input').value = '';
+        };
 
-            portfolio.push({
-                ticker,
-                teto,
-                data: new Date().toLocaleDateString('pt-BR')
-            });
+        // Remover ticker
+        window.removerTicker = function(ticker) {
+            portfolio = portfolio.filter(p => p.ticker !== ticker);
+            salvarPortfolio();
+            renderizarTabela();
+        };
 
-            savePortfolio();
-            renderTable();
-            tickerInput.value = '';
-            tetoInput.value = '';
-            tickerInput.focus();
-        }
+        // Botão Teste API
+        document.getElementById('btn-teste-api').onclick = async () => {
+            const url = `https://brapi.dev/api/quote/BBSE3?token=${TOKEN}`;
+            const startTime = Date.now();
+            const divTeste = document.getElementById('test-response');
+            divTeste.innerHTML = '<strong>Testando...</strong>';
 
-        function removeItem(index) {
-            if (confirm(`Remover ${portfolio[index].ticker}?`)) {
-                portfolio.splice(index, 1);
-                savePortfolio();
-                renderTable();
+            try {
+                const response = await fetch(url);
+                const tempo = Date.now() - startTime;
+                const data = await response.json();
+                divTeste.innerHTML = `
+                    <p><strong>Tempo:</strong> ${tempo}ms</p>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (erro) {
+                const tempo = Date.now() - startTime;
+                divTeste.innerHTML = `
+                    <p><strong>Tempo:</strong> ${tempo}ms</p>
+                    <p><strong>Erro:</strong> ${erro.message}</p>
+                `;
             }
-        }
+        };
 
-        window.addEventListener('load', () => {
-            loadPortfolio();
-            renderTable();
-            updatePortfolio();
-            setInterval(updatePortfolio, 15 * 60 * 1000); // 15 min
-        });
+        // Auto-update a cada 15min
+        setInterval(() => {
+            console.log('🔄 Auto-update: buscando preços...');
+            portfolio.forEach(item => buscarPreco(item.ticker));
+        }, 15 * 60 * 1000);
+
+        // Inicializar
+        carregarPortfolio();
     </script>
 </body>
 </html>
