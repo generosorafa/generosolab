@@ -3,328 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valuation de Ações - Brapi</title>
+    <title>Valuation Ações B3 - Brapi</title>
     <style>
-        body {
-            background: #121212;
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #121212;
+            color: #eee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 20px;
-            line-height: 1.6;
+            line-height: 1.4;
         }
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .input-group {
+        .inputs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
+        input {
+            flex: 1;
+            min-width: 150px;
             padding: 12px;
             background: #1e1e1e;
-            color: #fff;
-            border: 1px solid #444;
-            border-radius: 8px;
-            box-sizing: border-box;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #eee;
             font-size: 16px;
         }
-        input[type="text"]::placeholder {
+        input::placeholder {
             color: #888;
         }
         button {
-            background: #007bff;
-            color: white;
-            padding: 12px 24px;
+            padding: 12px 20px;
+            background: #333;
+            color: #eee;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            margin-right: 10px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #message {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
             font-weight: bold;
+            transition: background 0.3s;
         }
-        #error {
-            background: #dc3545;
-            color: white;
-            padding: 12px;
+        #add {
+            background: #4caf50;
+        }
+        #add:hover {
+            background: #45a049;
+        }
+        #update {
+            background: #2196f3;
+            margin-bottom: 10px;
+        }
+        #update:hover {
+            background: #1976d2;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            overflow-x: auto;
+            background: #1e1e1e;
             border-radius: 8px;
-            margin: 10px 0;
-        }
-        #loading {
-            text-align: center;
-            padding: 20px;
-            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
+            min-width: 800px;
         }
         th, td {
-            padding: 15px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #333;
         }
         th {
-            background: #333;
+            background: #252525;
+            position: sticky;
+            top: 0;
+            z-index: 10;
             font-weight: bold;
         }
-        .positive {
-            color: #28a745;
-            font-weight: bold;
+        tr:hover {
+            opacity: 0.8;
         }
-        .negative {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        #info {
-            margin-top: 20px;
-            padding: 15px;
-            background: #1e1e1e;
-            border-radius: 8px;
-            text-align: center;
+        .delete {
+            background: #f44336;
+            padding: 6px 10px;
             font-size: 14px;
-            color: #ccc;
+            min-width: auto;
+        }
+        .delete:hover {
+            background: #d32f2f;
+        }
+        .positive { color: #4caf50; }
+        .negative { color: #f44336; }
+        #lastUpdate, #requests {
+            font-size: 14px;
+            color: #aaa;
         }
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
+            .inputs {
+                flex-direction: column;
             }
-            table {
-                font-size: 14px;
+            input {
+                min-width: auto;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
             }
             th, td {
-                padding: 10px 8px;
+                padding: 8px 6px;
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🪙 Valuation de Ações - Brapi API</h1>
-        
-        <div class="input-group">
-            <label for="token">Token Brapi (opcional):</label>
-            <input type="text" id="token" placeholder="Cole sua chave API gratuita da Brapi aqui...">
-            <div id="message"></div>
+        <h1 style="margin-bottom: 20px;">Valuation Ações B3 - Brapi API</h1>
+        <div class="inputs">
+            <input id="token" type="text" placeholder="Token Brapi (opcional, salva automaticamente)">
+            <input id="ticker" type="text" placeholder="Ticker ex: PETR4" maxlength="10">
+            <input id="teto" type="number" step="0.01" min="0" placeholder="Preço Teto ex: 50.00">
+            <button id="add">Adicionar</button>
         </div>
-        
-        <div class="input-group">
-            <label for="symbols">Símbolos (ex: PETR4,VALE3,ITUB4):</label>
-            <input type="text" id="symbols" placeholder="Digite os símbolos separados por vírgula">
+        <div class="controls">
+            <button id="update">Atualizar Agora</button>
+            <span id="lastUpdate"></span>
+            <span id="requests">0 de 15.000</span>
         </div>
-        
-        <div class="input-group">
-            <label>
-                <input type="checkbox" id="autoUpdateChk"> Auto-update a cada 15 minutos
-            </label>
+        <div class="table-container">
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>TICKER</th>
+                        <th>PREÇO ATUAL</th>
+                        <th>VARIAÇÃO %</th>
+                        <th>DY %</th>
+                        <th>PREÇO TETO</th>
+                        <th>UPSIDE %</th>
+                        <th>DOWNSIDE %</th>
+                        <th>DATA SALVO</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
-        
-        <button onclick="fetchQuotes()">🔍 Buscar Cotações</button>
-        
-        <div id="loading" style="display: none;">⏳ Carregando cotações...</div>
-        <div id="error" style="display: none;"></div>
-        
-        <table id="quotesTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Símbolo</th>
-                    <th>Preço Atual</th>
-                    <th>Variação %</th>
-                    <th>Mínima</th>
-                    <th>Máxima</th>
-                    <th>Volume</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        
-        <div id="info">Última atualização: -- | Requisições hoje: 0</div>
     </div>
-    
     <script>
-        const TOKEN_KEY = 'brapiToken';
-        const SYMBOLS_KEY = 'savedSymbols';
-        const DATA_KEY = 'stockData';
-        const LAST_UPDATE_KEY = 'lastUpdate';
-        const REQUESTS_KEY = 'requestsToday';
-        let requestCount = 0;
-        let autoInterval;
+        let assets = [];
 
-        function loadToken() {
-            const token = localStorage.getItem(TOKEN_KEY);
-            const input = document.getElementById('token');
-            if (token) {
-                input.value = token;
-            }
-            updateMessage();
+        function loadData() {
+            assets = JSON.parse(localStorage.getItem('assets') || '[]');
+            document.getElementById('token').value = localStorage.getItem('token') || '';
+            loadRequests();
+            renderTable();
         }
 
         function saveToken() {
-            const token = document.getElementById('token').value.trim();
-            if (token) {
-                localStorage.setItem(TOKEN_KEY, token);
+            const token = document.getElementById('token').value;
+            localStorage.setItem('token', token);
+        }
+
+        async function getQuote(ticker) {
+            const token = localStorage.getItem('token') || '';
+            const url = `https://brapi.dev/api/quote/${ticker}${token ? '?token=' + token : ''}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Erro na API');
+            }
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+                const r = data.results[0];
+                return {
+                    price: parseFloat(r.price),
+                    chgPercent: parseFloat(r.chgPercent),
+                    dividendYield: parseFloat(r.dividendYield)
+                };
             } else {
-                localStorage.removeItem(TOKEN_KEY);
+                throw new Error('Ticker inválido ou sem dados');
             }
-            updateMessage();
         }
 
-        function updateMessage() {
-            const token = document.getElementById('token').value.trim();
-            const msgEl = document.getElementById('message');
-            const msg = token ? '✅ Com token Free: 15.000 req/mês' : '⚠️ Sem token: limite ~100 req/dia';
-            msgEl.textContent = msg;
-            msgEl.style.background = token ? '#28a745' : '#ffc107';
-            msgEl.style.color = token ? 'white' : '#333';
-        }
-
-        function loadRequestCount() {
-            const today = new Date().toDateString();
-            let counts = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '{}');
-            if (counts.date !== today) {
-                counts = { date: today, count: 0 };
-                localStorage.setItem(REQUESTS_KEY, JSON.stringify(counts));
+        function incrementRequests() {
+            const now = new Date();
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const savedMonth = localStorage.getItem('month') || '';
+            if (savedMonth !== currentMonth) {
+                localStorage.setItem('requests', '0');
+                localStorage.setItem('month', currentMonth);
             }
-            requestCount = counts.count;
+            let requests = parseInt(localStorage.getItem('requests') || '0') + 1;
+            localStorage.setItem('requests', requests.toString());
+            document.getElementById('requests').textContent = `${requests} de 15.000`;
         }
 
-        function incrementRequest() {
-            const today = new Date().toDateString();
-            let counts = JSON.parse(localStorage.getItem(REQUESTS_KEY) || '{}');
-            if (counts.date !== today) {
-                counts = { date: today, count: 0 };
+        function loadRequests() {
+            const now = new Date();
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const savedMonth = localStorage.getItem('month') || '';
+            if (savedMonth !== currentMonth) {
+                localStorage.setItem('requests', '0');
+                localStorage.setItem('month', currentMonth);
             }
-            counts.count++;
-            localStorage.setItem(REQUESTS_KEY, JSON.stringify(counts));
-            requestCount = counts.count;
+            const requests = parseInt(localStorage.getItem('requests') || '0');
+            document.getElementById('requests').textContent = `${requests} de 15.000`;
         }
 
-        function updateInfo() {
-            const lastUpdate = localStorage.getItem(LAST_UPDATE_KEY);
-            const time = lastUpdate ? new Date(lastUpdate).toLocaleString('pt-BR') : '--';
-            document.getElementById('info').textContent = `Última atualização: ${time} | Requisições hoje: ${requestCount}`;
+        async function updateAll() {
+            for (let asset of assets) {
+                try {
+                    incrementRequests();
+                    const data = await getQuote(asset.ticker);
+                    asset.price = data.price;
+                    asset.chgPercent = data.chgPercent;
+                    asset.dividendYield = data.dividendYield;
+                } catch (error) {
+                    asset.price = 'Erro';
+                    asset.chgPercent = null;
+                    asset.dividendYield = null;
+                    console.error(`Erro para ${asset.ticker}:`, error);
+                }
+            }
+            localStorage.setItem('assets', JSON.stringify(assets));
+            renderTable();
+            document.getElementById('lastUpdate').textContent = `Última: ${new Date().toLocaleTimeString('pt-BR')}`;
         }
 
-        async function fetchQuotes() {
-            const symbolsInput = document.getElementById('symbols').value.trim();
-            if (!symbolsInput) {
-                alert('Digite pelo menos um símbolo!');
+        function renderTable() {
+            const tbody = document.querySelector('#table tbody');
+            tbody.innerHTML = '';
+            assets.forEach((asset, index) => {
+                let priceStr = '-';
+                let varStr = '-';
+                let dyStr = '-';
+                let upsideStr = 'N/A';
+                let downsideStr = 'N/A';
+                let rowColor = 'rgba(100, 100, 100, 0.2)';
+                let varClass = '';
+
+                if (asset.price !== null && asset.price !== 'Erro' && typeof asset.price === 'number') {
+                    priceStr = `R$ ${asset.price.toFixed(2)}`;
+                    varStr = asset.chgPercent !== null ? asset.chgPercent.toFixed(2) : '-';
+                    dyStr = asset.dividendYield !== null ? asset.dividendYield.toFixed(2) : '-';
+                    const upside = ((asset.teto - asset.price) / asset.price) * 100;
+                    upsideStr = upside.toFixed(2) + '%';
+                    downsideStr = (-upside).toFixed(2) + '%';
+                    rowColor = upside <= 0 ? 'rgba(255, 68, 68, 0.4)' : 'rgba(68, 255, 68, 0.4)';
+                    varClass = asset.chgPercent >= 0 ? 'positive' : 'negative';
+                } else if (asset.price === 'Erro') {
+                    priceStr = 'Erro';
+                    rowColor = 'rgba(255, 68, 68, 0.6)';
+                }
+
+                const row = document.createElement('tr');
+                row.style.backgroundColor = rowColor;
+                row.innerHTML = `
+                    <td>${asset.ticker}</td>
+                    <td>${priceStr}</td>
+                    <td class="${varClass}">${varStr}%</td>
+                    <td>${dyStr}%</td>
+                    <td>R$ ${asset.teto.toFixed(2)}</td>
+                    <td style="font-weight: bold; color: ${parseFloat(upsideStr) > 0 ? '#4caf50' : '#f44336'}">${upsideStr}</td>
+                    <td>${downsideStr}</td>
+                    <td>${asset.data_salvo}</td>
+                    <td><button class="delete" data-index="${index}">X</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Event listeners for delete
+            document.querySelectorAll('.delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    assets.splice(index, 1);
+                    localStorage.setItem('assets', JSON.stringify(assets));
+                    renderTable();
+                });
+            });
+        }
+
+        async function addAsset() {
+            const ticker = document.getElementById('ticker').value.toUpperCase().trim();
+            const tetoStr = document.getElementById('teto').value.trim();
+            if (!ticker || !tetoStr) {
+                alert('Preencha o ticker e o preço teto!');
                 return;
             }
-            const symbols = symbolsInput.split(',').map(s => s.trim().toUpperCase()).filter(s => s).join(',');
-            const token = localStorage.getItem(TOKEN_KEY);
-            const url = `https://brapi.dev/api/quote/${symbols}${token ? `?token=${token}` : ''}`;
-
-            const loadingEl = document.getElementById('loading');
-            const errorEl = document.getElementById('error');
-            const tableEl = document.getElementById('quotesTable');
-
-            loadingEl.style.display = 'block';
-            errorEl.style.display = 'none';
-            tableEl.style.display = 'none';
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
-                }
-                const data = await response.json();
-                if (data.results && data.results.length > 0) {
-                    displayQuotes(data.results);
-                    localStorage.setItem(DATA_KEY, JSON.stringify(data.results));
-                    localStorage.setItem(LAST_UPDATE_KEY, new Date().toISOString());
-                    incrementRequest();
-                    updateInfo();
-                } else {
-                    throw new Error('Nenhum dado encontrado para os símbolos informados.');
-                }
-            } catch (err) {
-                errorEl.textContent = `Erro: ${err.message}`;
-                errorEl.style.display = 'block';
-            } finally {
-                loadingEl.style.display = 'none';
+            const teto = parseFloat(tetoStr);
+            if (isNaN(teto) || teto <= 0) {
+                alert('Preço teto deve ser um número positivo!');
+                return;
             }
-        }
-
-        function displayQuotes(quotes) {
-            const tbody = document.querySelector('#quotesTable tbody');
-            tbody.innerHTML = '';
-            quotes.forEach(q => {
-                const row = tbody.insertRow();
-                const chgClass = (q.chgPercent || 0) >= 0 ? 'positive' : 'negative';
-                row.innerHTML = `
-                    <td><strong>${q.symbol || '-'}</strong></td>
-                    <td>${q.price ? 'R$ ' + q.price.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
-                    <td class="${chgClass}">${q.chgPercent ? q.chgPercent.toFixed(2) + '%' : '-'}</td>
-                    <td>${q.low ? 'R$ ' + q.low.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
-                    <td>${q.high ? 'R$ ' + q.high.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
-                    <td>${q.volume ? q.volume.toLocaleString('pt-BR') : '-'}</td>
-                `;
+            if (assets.find(a => a.ticker === ticker)) {
+                alert('Ticker já existe na lista!');
+                return;
+            }
+            const data_salvo = new Date().toLocaleString('pt-BR');
+            assets.push({
+                ticker,
+                teto,
+                data_salvo,
+                price: null,
+                chgPercent: null,
+                dividendYield: null
             });
-            document.getElementById('quotesTable').style.display = 'table';
+            localStorage.setItem('assets', JSON.stringify(assets));
+            document.getElementById('ticker').value = '';
+            document.getElementById('teto').value = '';
+            renderTable();
+            await updateAll();
         }
-
-        function toggleAutoUpdate() {
-            const chk = document.getElementById('autoUpdateChk');
-            if (chk.checked) {
-                fetchQuotes();
-                autoInterval = setInterval(fetchQuotes, 15 * 60 * 1000);
-            } else {
-                if (autoInterval) {
-                    clearInterval(autoInterval);
-                }
-            }
-        }
-
-        // Inicialização
-        window.addEventListener('load', () => {
-            loadToken();
-            const savedSymbols = localStorage.getItem(SYMBOLS_KEY);
-            if (savedSymbols) {
-                document.getElementById('symbols').value = savedSymbols;
-            }
-            loadRequestCount();
-            updateInfo();
-            const savedData = localStorage.getItem(DATA_KEY);
-            if (savedData) {
-                displayQuotes(JSON.parse(savedData));
-            }
-        });
 
         // Event listeners
-        document.getElementById('token').addEventListener('input', saveToken);
-        document.getElementById('symbols').addEventListener('blur', function() {
-            localStorage.setItem(SYMBOLS_KEY, this.value);
-        });
-        document.getElementById('autoUpdateChk').addEventListener('change', toggleAutoUpdate);
-
-        // Enter para buscar
-        document.getElementById('symbols').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                fetchQuotes();
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            document.getElementById('token').addEventListener('change', saveToken);
+            document.getElementById('add').addEventListener('click', addAsset);
+            document.getElementById('update').addEventListener('click', updateAll);
+            // Auto update
+            updateAll();
+            setInterval(updateAll, 15 * 60 * 1000);
         });
     </script>
 </body>
