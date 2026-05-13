@@ -3,204 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valuation B3 - VERSÃO DEBUG</title>
+    <title>Valuation B3</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        #debug { background: #f0f8ff; border: 2px solid #007bff; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
-        #debug h2 { color: #007bff; }
-        #debug p { margin: 10px 0; }
-        #debug pre { background: #fff; padding: 10px; border: 1px solid #ddd; max-height: 300px; overflow-y: auto; }
-        #test-response { margin-top: 10px; background: #e8f5e8; padding: 10px; border-radius: 4px; }
-        #app { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { padding: 10px; font-size: 16px; }
-        button { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #218838; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #f8f9fa; }
-        .carregando { color: orange; font-style: italic; }
-        .erro { color: red; }
-        .preco { font-weight: bold; color: green; }
-        #tabela tbody tr:nth-child(even) { background: #f8f9fa; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+        .form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        #ticker, #teto {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #218838;
+        }
+        #atualizarBtn {
+            display: block;
+            margin: 0 auto 30px;
+            background: #007bff;
+        }
+        #atualizarBtn:hover {
+            background: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 12px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding: 16px 12px;
+        }
+        th:nth-child(1), td:nth-child(1) {
+            text-align: left;
+        }
+        th:nth-child(8), td:nth-child(8) {
+            text-align: center;
+        }
+        th:nth-child(9), td:nth-child(9) {
+            text-align: center;
+            width: 60px;
+        }
+        .pos {
+            color: #28a745;
+            font-weight: 500;
+        }
+        .neg {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        .vender {
+            background-color: #f8d7da !important;
+        }
+        .dy- {
+            color: #6c757d;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .form {
+                flex-direction: column;
+            }
+            th, td {
+                padding: 8px 6px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- SEÇÃO DEBUG -->
-    <div id="debug">
-        <h2>🔍 DEBUG INFO (Última Requisição)</h2>
-        <p><strong>URL exata:</strong> <span id="debug-url">-</span></p>
-        <p><strong>Status:</strong> <span id="debug-status">-</span></p>
-        <p><strong>JSON completo:</strong></p>
-        <pre id="debug-json">-</pre>
-        <p><strong>Erro:</strong> <span id="debug-error">-</span></p>
-        <button id="btn-teste-api">🧪 Teste API BBSE3</button>
-        <div id="test-response">Clique no botão para testar.</div>
-    </div>
-
-    <!-- APLICAÇÃO PRINCIPAL -->
     <h1>Valuation B3</h1>
-    <div id="inputs">
-        <input id="ticker-input" placeholder="Ticker (ex: BBSE3)" maxlength="10">
-        <input id="preco-teto-input" type="number" step="0.01" placeholder="Preço Teto" min="0">
-        <button id="btn-adicionar">➕ Adicionar</button>
+    <div class="form">
+        <input id="ticker" placeholder="Ticker ex: PETR4" maxlength="10" autocomplete="off">
+        <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto" autocomplete="off">
+        <button onclick="adicionar()">Adicionar</button>
     </div>
-    <table id="tabela">
+    <button id="atualizarBtn" onclick="atualizarTudo()">Atualizar Agora</button>
+    <table>
         <thead>
             <tr>
-                <th>Ticker</th>
-                <th>Preço Atual</th>
-                <th>Preço Teto</th>
-                <th>Status</th>
-                <th>Ações</th>
+                <th>TICKER</th>
+                <th>PREÇO ATUAL</th>
+                <th>VARIAÇÃO %</th>
+                <th>DY %</th>
+                <th>PREÇO TETO</th>
+                <th>UPSIDE %</th>
+                <th>DOWNSIDE %</th>
+                <th>DATA SALVO</th>
+                <th>X</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="tbody">
+            <!-- Conteúdo gerado dinamicamente -->
+        </tbody>
     </table>
-    <p><em>Auto-update a cada 15 minutos. Dados de <a href="https://brapi.dev" target="_blank">brapi.dev</a>.</em></p>
 
     <script>
         const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
-        let portfolio = [];
+        let ativos = JSON.parse(localStorage.getItem('ativos') || '[]');
 
-        // Carregar do LocalStorage
-        function carregarPortfolio() {
-            const salvo = localStorage.getItem('valuationB3Portfolio');
-            portfolio = salvo ? JSON.parse(salvo) : [];
-            renderizarTabela();
+        function salvar() {
+            localStorage.setItem('ativos', JSON.stringify(ativos));
         }
 
-        // Salvar no LocalStorage
-        function salvarPortfolio() {
-            localStorage.setItem('valuationB3Portfolio', JSON.stringify(portfolio));
-        }
-
-        // Renderizar tabela
-        function renderizarTabela() {
-            const tbody = document.querySelector('#tabela tbody');
-            tbody.innerHTML = '';
-            portfolio.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.ticker}</td>
-                    <td id="preco-${item.ticker}" class="carregando">Carregando...</td>
-                    <td>${parseFloat(item.precoTeto).toFixed(2)}</td>
-                    <td id="status-${item.ticker}">-</td>
-                    <td><button onclick="removerTicker('${item.ticker}')">❌ Remover</button></td>
-                `;
-                tbody.appendChild(tr);
-                // Buscar preço imediatamente
-                buscarPreco(item.ticker);
-            });
-        }
-
-        // Buscar preço (com DEBUG)
-        function buscarPreco(ticker) {
-            const url = `https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`;
-            console.log('🚀 ANTES da requisição:', { ticker, url });
-
-            // Atualizar DEBUG
-            document.getElementById('debug-url').textContent = url;
-            document.getElementById('debug-status').textContent = 'Enviando...';
-            document.getElementById('debug-json').textContent = '';
-            document.getElementById('debug-error').textContent = '';
-
-            const startTime = Date.now();
-            fetch(url)
-                .then(async (response) => {
-                    const tempo = Date.now() - startTime;
-                    console.log('📥 RESPOSTA recebida:', { ticker, status: response.status, tempo });
-                    document.getElementById('debug-status').textContent = `${response.status} (${tempo}ms)`;
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
+        function fetchQuote(ticker) {
+            return fetch(`https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`)
+                .then(r => r.json())
                 .then(data => {
-                    console.log('✅ JSON completo:', { ticker, data });
-                    document.getElementById('debug-json').textContent = JSON.stringify(data, null, 2);
-
-                    const result = data.results?.[0];
-                    const preco = result?.regularMarketPrice || 'N/D';
-                    atualizarLinha(ticker, preco, 'OK');
+                    if (!data.results || data.results.length === 0) {
+                        throw new Error('Sem dados');
+                    }
+                    const res = data.results[0];
+                    return {
+                        price: res.regularMarketPrice || 0,
+                        changePct: res.regularMarketChangePercent || 0,
+                        dy: res.dividendYield !== undefined ? res.dividendYield : '-'
+                    };
                 })
-                .catch(erro => {
-                    console.error('❌ ERRO COMPLETO:', { ticker, erro: erro.message, stack: erro.stack });
-                    document.getElementById('debug-error').textContent = erro.message;
-                    atualizarLinha(ticker, 'Erro', erro.message);
+                .catch(() => ({ price: 0, changePct: 0, dy: '-' }));
+        }
+
+        function formatPrice(p) {
+            if (p <= 0) return '-';
+            return `R$ ${parseFloat(p).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function formatPct(p) {
+            if (p === '-') return '<span class="dy-">-</span>';
+            const val = parseFloat(p).toFixed(2).replace('.', ',');
+            return `${val}%`;
+        }
+
+        function adicionar() {
+            const tickerEl = document.getElementById('ticker');
+            const tetoEl = document.getElementById('teto');
+            const ticker = tickerEl.value.toUpperCase().trim();
+            const teto = parseFloat(tetoEl.value);
+            if (!ticker || isNaN(teto) || teto <= 0) {
+                alert('Ticker e Preço Teto válidos são obrigatórios!');
+                return;
+            }
+            if (ativos.some(a => a.ticker === ticker)) {
+                alert('Ticker já existe na lista!');
+                return;
+            }
+            const dataSalva = new Date().toLocaleString('pt-BR');
+            ativos.push({ ticker, teto, dataSalva });
+            salvar();
+            tickerEl.value = '';
+            tetoEl.value = '';
+            tickerEl.focus();
+            atualizarTudo();
+        }
+
+        function atualizarTudo() {
+            const tbody = document.getElementById('tbody');
+            if (ativos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6c757d;">Nenhum ativo adicionado. Adicione o primeiro!</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Atualizando...</td></tr>';
+            Promise.all(ativos.map(a => fetchQuote(a.ticker).then(q => ({ ...a, ...q }))))
+                .then(results => {
+                    tbody.innerHTML = '';
+                    results.forEach((row, index) => {
+                        const price = row.price || 0;
+                        const upside = price > 0 ? ((row.teto - price) / price * 100) : 0;
+                        const downside = -upside;
+                        const tr = document.createElement('tr');
+                        if (upside <= 0) tr.classList.add('vender');
+                        tr.innerHTML = `
+                            <td>${row.ticker}</td>
+                            <td>${formatPrice(price)}</td>
+                            <td class="${row.changePct >= 0 ? 'pos' : 'neg'}">${formatPct(row.changePct)}</td>
+                            <td>${formatPct(row.dy)}</td>
+                            <td>${formatPrice(row.teto)}</td>
+                            <td class="${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</td>
+                            <td class="${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</td>
+                            <td>${row.dataSalva}</td>
+                            <td><button onclick="remover(${index})" style="background:#dc3545; padding:6px 12px; font-size:14px;">X</button></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#dc3545;">Erro ao atualizar. Tente novamente.</td></tr>';
                 });
         }
 
-        // Atualizar linha da tabela
-        function atualizarLinha(ticker, preco, status) {
-            const elPreco = document.getElementById(`preco-${ticker}`);
-            const elStatus = document.getElementById(`status-${ticker}`);
-            if (elPreco) {
-                elPreco.textContent = typeof preco === 'number' ? preco.toFixed(2) : preco;
-                elPreco.className = preco === 'Erro' ? 'erro' : (preco === 'Carregando...' ? 'carregando' : 'preco');
+        function remover(index) {
+            if (confirm(`Remover ${ativos[index].ticker}?`)) {
+                ativos.splice(index, 1);
+                salvar();
+                atualizarTudo();
             }
-            if (elStatus) elStatus.textContent = status;
         }
 
-        // Adicionar ticker
-        document.getElementById('btn-adicionar').onclick = () => {
-            const ticker = document.getElementById('ticker-input').value.toUpperCase().trim();
-            const precoTeto = parseFloat(document.getElementById('preco-teto-input').value);
-            if (!ticker || isNaN(precoTeto) || precoTeto <= 0) {
-                alert('Informe ticker válido e preço teto > 0');
-                return;
+        // Inicialização
+        window.addEventListener('load', () => {
+            atualizarTudo();
+            setInterval(atualizarTudo, 15 * 60 * 1000); // 15 minutos
+            document.getElementById('ticker').focus();
+        });
+
+        // Enter no input adiciona
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const active = document.activeElement;
+                if (active.id === 'ticker' || active.id === 'teto') {
+                    adicionar();
+                }
             }
-            if (portfolio.find(p => p.ticker === ticker)) {
-                alert('Ticker já adicionado');
-                return;
-            }
-            portfolio.push({ ticker, precoTeto });
-            salvarPortfolio();
-            renderizarTabela();
-            document.getElementById('ticker-input').value = '';
-            document.getElementById('preco-teto-input').value = '';
-        };
-
-        // Remover ticker
-        window.removerTicker = function(ticker) {
-            portfolio = portfolio.filter(p => p.ticker !== ticker);
-            salvarPortfolio();
-            renderizarTabela();
-        };
-
-        // Botão Teste API
-        document.getElementById('btn-teste-api').onclick = async () => {
-            const url = `https://brapi.dev/api/quote/BBSE3?token=${TOKEN}`;
-            const startTime = Date.now();
-            const divTeste = document.getElementById('test-response');
-            divTeste.innerHTML = '<strong>Testando...</strong>';
-
-            try {
-                const response = await fetch(url);
-                const tempo = Date.now() - startTime;
-                const data = await response.json();
-                divTeste.innerHTML = `
-                    <p><strong>Tempo:</strong> ${tempo}ms</p>
-                    <p><strong>Status:</strong> ${response.status}</p>
-                    <pre>${JSON.stringify(data, null, 2)}</pre>
-                `;
-            } catch (erro) {
-                const tempo = Date.now() - startTime;
-                divTeste.innerHTML = `
-                    <p><strong>Tempo:</strong> ${tempo}ms</p>
-                    <p><strong>Erro:</strong> ${erro.message}</p>
-                `;
-            }
-        };
-
-        // Auto-update a cada 15min
-        setInterval(() => {
-            console.log('🔄 Auto-update: buscando preços...');
-            portfolio.forEach(item => buscarPreco(item.ticker));
-        }, 15 * 60 * 1000);
-
-        // Inicializar
-        carregarPortfolio();
+        });
     </script>
 </body>
 </html>
