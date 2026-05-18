@@ -147,11 +147,18 @@
                 display: none;
             }
             
-            .cards-container {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 15px;
-                margin-bottom: 20px;
+.cards-container {
+    display: none; /* Esconde os cards por padrão (desktop) */
+}
+
+@media (max-width: 768px) {
+    .cards-container {
+        display: grid; /* Mostra os cards no mobile */
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+}
             }
             
             .card {
