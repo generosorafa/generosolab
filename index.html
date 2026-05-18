@@ -190,15 +190,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
 
     <script>
-        // ⚠️ CONFIGURE COM SEUS DADOS FIREBASE
         const firebaseConfig = {
-   apiKey: "AIzaSyBh8zAxB8N-sQORg0rQbfh76bYiYYfwjYk",
-  authDomain: "geneb3-valuation.firebaseapp.com",
-  databaseURL: "https://geneb3-valuation-default-rtdb.firebaseio.com",
-  projectId: "geneb3-valuation",
-  storageBucket: "geneb3-valuation.firebasestorage.app",
-  messagingSenderId: "128291497154",
-  appId: "1:128291497154:web:98b66544c79b10b2da075b"
+ 		 apiKey: "AIzaSyBh8zAxB8N-sQORg0rQbfh76bYiYYfwjYk",
+ 		 authDomain: "geneb3-valuation.firebaseapp.com",
+ 		 databaseURL: "https://geneb3-valuation-default-rtdb.firebaseio.com",
+  		projectId: "geneb3-valuation",
+  		storageBucket: "geneb3-valuation.firebasestorage.app",
+  		messagingSenderId: "128291497154",
+  		appId: "1:128291497154:web:98b66544c79b10b2da075b"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -212,7 +211,6 @@
         }
         document.getElementById('actionHeader').textContent = isAdmin ? 'AÇÕES' : '';
 
-        // Ouve mudanças no Firebase em tempo real
         db.ref('ativos').on('value', (snapshot) => {
             ativos = [];
             snapshot.forEach((child) => {
@@ -248,9 +246,6 @@
         }
 
         async function atualizarTudo() {
-            const tbody = document.getElementById('tbody');
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Atualizando...</td></tr>';
-            
             for (let a of ativos) {
                 const q = await fetchQuote(a.ticker);
                 db.ref('ativos/' + a.id).update({
