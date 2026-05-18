@@ -3,255 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valuation B3</title>
+    <meta name="description" content="GeneB3 - Valuation de ações B3 pelo fluxo de caixa. Uma visão pessoal, descomplicada e divertida.">
+    <title>GeneB3 - Valuation B3</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f8f9fa;
-            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         h1 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 30px;
+            font-size: 3em;
+            background: linear-gradient(135deg, #4caf50, #2196f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
         }
+        .subtitle { color: #b0b0b0; font-size: 0.95em; margin-bottom: 15px; }
+        .tagline {
+            color: #888;
+            font-size: 0.9em;
+            font-style: italic;
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .disclaimer {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 3px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #ffc107;
+        }
+        .admin-section { display: none; margin-bottom: 20px; }
+        .admin-section.show { display: block; }
         .form {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        #ticker, #teto {
+        input {
             flex: 1;
-            min-width: 150px;
-            padding: 12px;
-            border: 1px solid #ddd;
+            min-width: 120px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 6px;
-            font-size: 16px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.12);
+            border-color: #2196f3;
         }
         button {
-            padding: 12px 24px;
-            background: #28a745;
+            padding: 10px 20px;
+            background: #2196f3;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
         }
-        button:hover {
-            background: #218838;
-        }
-        #atualizarBtn {
-            display: block;
-            margin: 0 auto 30px;
-            background: #007bff;
-        }
-        #atualizarBtn:hover {
-            background: #0056b3;
-        }
+        button:hover { background: #1976d2; transform: translateY(-2px); }
+        .update-btn { background: #4caf50; }
+        .update-btn:hover { background: #45a049; }
+        .delete-btn { background: #f44336; padding: 6px 12px; font-size: 12px; }
+        .delete-btn:hover { background: #d32f2f; }
+        .table-wrapper { overflow-x: auto; border-radius: 8px; }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
         }
         th, td {
-            padding: 12px 12px;
+            padding: 8px 10px;
             text-align: right;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
         }
-        th {
-            background: #f8f9fa;
+        th { 
+            background: rgba(255,255,255,0.08);
+            text-align: left;
             font-weight: 600;
-            text-align: left;
-            padding: 16px 12px;
+            text-transform: uppercase;
         }
-        th:nth-child(1), td:nth-child(1) {
-            text-align: left;
-        }
-        th:nth-child(8), td:nth-child(8) {
+        td:first-child, th:first-child { text-align: left; }
+        .pos { color: #4caf50; font-weight: 500; }
+        .neg { color: #f44336; font-weight: 500; }
+        .vender { background: rgba(244, 67, 54, 0.2) !important; }
+        tr:hover { background: rgba(255,255,255,0.03); }
+        .dy-edit {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(33,150,243,0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            min-width: 60px;
             text-align: center;
         }
-        th:nth-child(9), td:nth-child(9) {
+        footer {
             text-align: center;
-            width: 60px;
-        }
-        .pos {
-            color: #28a745;
-            font-weight: 500;
-        }
-        .neg {
-            color: #dc3545;
-            font-weight: 500;
-        }
-        .vender {
-            background-color: #f8d7da !important;
-        }
-        .dy- {
-            color: #6c757d;
-            font-style: italic;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #666;
         }
         @media (max-width: 768px) {
-            .form {
-                flex-direction: column;
-            }
-            th, td {
-                padding: 8px 6px;
-                font-size: 14px;
-            }
+            h1 { font-size: 2em; }
+            th, td { padding: 6px 8px; font-size: 12px; }
+            .form { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-    <h1>Valuation B3</h1>
-    <div class="form">
-        <input id="ticker" placeholder="Ticker ex: PETR4" maxlength="10" autocomplete="off">
-        <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto" autocomplete="off">
-        <button onclick="adicionar()">Adicionar</button>
+    <div class="container">
+        <header>
+            <h1>GeneB3</h1>
+            <p class="subtitle">Valuation pelo Fluxo de Caixa</p>
+            <p class="tagline">Uma visão pessoal, descomplicada e divertida sobre margens de valores e investimentos a longo prazo.</p>
+            <div class="disclaimer">⚠️ AVISO: Este é uma ferramenta pessoal de análise. NÃO é recomendação de investimento. Use para visualizar suas próprias estratégias de valuation.</div>
+        </header>
+
+        <div id="adminSection" class="admin-section">
+            <div class="form">
+                <input id="ticker" placeholder="Ticker (ex: PETR4)" maxlength="10">
+                <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto">
+                <input id="dy" type="number" step="0.01" min="0" placeholder="DY % (ex: 8.5)">
+                <button onclick="addAsset()">➕ Adicionar</button>
+            </div>
+            <button class="update-btn" onclick="atualizarTudo()" style="width: 100%;">🔄 Atualizar Preços</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>TICKER</th>
+                        <th>PREÇO ATUAL</th>
+                        <th>VARIAÇÃO %</th>
+                        <th>DY %</th>
+                        <th>PREÇO TETO</th>
+                        <th>UPSIDE %</th>
+                        <th>DOWNSIDE %</th>
+                        <th>DATA SALVO</th>
+                        <th id="actionHeader"></th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+
+        <footer>
+            © 2026 GeneB3 | Dados via <a href="https://brapi.dev" target="_blank" style="color: #2196f3;">Brapi</a>
+        </footer>
     </div>
-    <button id="atualizarBtn" onclick="atualizarTudo()">Atualizar Agora</button>
-    <table>
-        <thead>
-            <tr>
-                <th>TICKER</th>
-                <th>PREÇO ATUAL</th>
-                <th>VARIAÇÃO %</th>
-                <th>DY %</th>
-                <th>PREÇO TETO</th>
-                <th>UPSIDE %</th>
-                <th>DOWNSIDE %</th>
-                <th>DATA SALVO</th>
-                <th>X</th>
-            </tr>
-        </thead>
-        <tbody id="tbody">
-            <!-- Conteúdo gerado dinamicamente -->
-        </tbody>
-    </table>
 
     <script>
         const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
-        let ativos = JSON.parse(localStorage.getItem('ativos') || '[]');
+        const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
+        let ativos = JSON.parse(localStorage.getItem('geneB3Ativos') || '[]');
+
+        if (isAdmin) {
+            document.getElementById('adminSection').classList.add('show');
+        }
+        document.getElementById('actionHeader').textContent = isAdmin ? 'AÇÕES' : '';
 
         function salvar() {
-            localStorage.setItem('ativos', JSON.stringify(ativos));
-        }
-
-        function fetchQuote(ticker) {
-            return fetch(`https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.results || data.results.length === 0) {
-                        throw new Error('Sem dados');
-                    }
-                    const res = data.results[0];
-                    return {
-                        price: res.regularMarketPrice || 0,
-                        changePct: res.regularMarketChangePercent || 0,
-                        dy: res.dividendYield !== undefined ? res.dividendYield : '-'
-                    };
-                })
-                .catch(() => ({ price: 0, changePct: 0, dy: '-' }));
+            localStorage.setItem('geneB3Ativos', JSON.stringify(ativos));
         }
 
         function formatPrice(p) {
-            if (p <= 0) return '-';
-            return `R$ ${parseFloat(p).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            return p <= 0 ? '-' : `R$ ${parseFloat(p).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function formatPct(p) {
-            if (p === '-') return '<span class="dy-">-</span>';
-            const val = parseFloat(p).toFixed(2).replace('.', ',');
-            return `${val}%`;
+            if (p === '-' || p === null) return '-';
+            return `${parseFloat(p).toFixed(2).replace('.', ',')}%`;
         }
 
-        function adicionar() {
-            const tickerEl = document.getElementById('ticker');
-            const tetoEl = document.getElementById('teto');
-            const ticker = tickerEl.value.toUpperCase().trim();
-            const teto = parseFloat(tetoEl.value);
-            if (!ticker || isNaN(teto) || teto <= 0) {
-                alert('Ticker e Preço Teto válidos são obrigatórios!');
-                return;
-            }
-            if (ativos.some(a => a.ticker === ticker)) {
-                alert('Ticker já existe na lista!');
-                return;
-            }
-            const dataSalva = new Date().toLocaleString('pt-BR');
-            ativos.push({ ticker, teto, dataSalva });
-            salvar();
-            tickerEl.value = '';
-            tetoEl.value = '';
-            tickerEl.focus();
-            atualizarTudo();
-        }
-
-        function atualizarTudo() {
-            const tbody = document.getElementById('tbody');
-            if (ativos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#6c757d;">Nenhum ativo adicionado. Adicione o primeiro!</td></tr>';
-                return;
-            }
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Atualizando...</td></tr>';
-            Promise.all(ativos.map(a => fetchQuote(a.ticker).then(q => ({ ...a, ...q }))))
-                .then(results => {
-                    tbody.innerHTML = '';
-                    results.forEach((row, index) => {
-                        const price = row.price || 0;
-                        const upside = price > 0 ? ((row.teto - price) / price * 100) : 0;
-                        const downside = -upside;
-                        const tr = document.createElement('tr');
-                        if (upside <= 0) tr.classList.add('vender');
-                        tr.innerHTML = `
-                            <td>${row.ticker}</td>
-                            <td>${formatPrice(price)}</td>
-                            <td class="${row.changePct >= 0 ? 'pos' : 'neg'}">${formatPct(row.changePct)}</td>
-                            <td>${formatPct(row.dy)}</td>
-                            <td>${formatPrice(row.teto)}</td>
-                            <td class="${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</td>
-                            <td class="${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</td>
-                            <td>${row.dataSalva}</td>
-                            <td><button onclick="remover(${index})" style="background:#dc3545; padding:6px 12px; font-size:14px;">X</button></td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                })
-                .catch(() => {
-                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#dc3545;">Erro ao atualizar. Tente novamente.</td></tr>';
-                });
-        }
-
-        function remover(index) {
-            if (confirm(`Remover ${ativos[index].ticker}?`)) {
-                ativos.splice(index, 1);
-                salvar();
-                atualizarTudo();
-            }
-        }
-
-        // Inicialização
-        window.addEventListener('load', () => {
-            atualizarTudo();
-            setInterval(atualizarTudo, 15 * 60 * 1000); // 15 minutos
-            document.getElementById('ticker').focus();
-        });
-
-        // Enter no input adiciona
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const active = document.activeElement;
-                if (active.id === 'ticker' || active.id === 'teto') {
-                    adicionar();
+        async function fetchQuote(ticker) {
+            try {
+                const r = await fetch(`https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`);
+                const data = await r.json();
+                if (data.results && data.results[0]) {
+                    return {
+                        price: data.results[0].regularMarketPrice || 0,
+                        change: data.results[0].regularMarketChangePercent || 0
+                    };
                 }
+            } catch (e) { console.error(e); }
+            return { price: 0, change: 0 };
+        }
+
+        async function atualizarTudo() {
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Atualizando...</td></tr>';
+            
+            const promises = ativos.map(async (a) => {
+                const q = await fetchQuote(a.ticker);
+                return { ...a, price: q.price, change: q.change };
+            });
+
+            ativos = await Promise.all(promises);
+            salvar();
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
+            
+            if (ativos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#666;">Nenhum ativo adicionado</td></tr>';
+                return;
             }
+
+            ativos.forEach((a, i) => {
+                const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                const downside = -upside;
+                const tr = document.createElement('tr');
+                if (upside <= 0) tr.classList.add('vender');
+
+                let actions = '';
+                if (isAdmin) {
+                    actions = `<button class="delete-btn" onclick="remover(${i})">✕</button>`;
+                }
+
+                tr.innerHTML = `
+                    <td>${a.ticker}</td>
+                    <td>${formatPrice(a.price || 0)}</td>
+                    <td class="${(a.change || 0) >= 0 ? 'pos' : 'neg'}">${formatPct(a.change)}</td>
+                    <td>${isAdmin ? `<input class="dy-edit" value="${a.dy}" onchange="editDY(${i}, this.value)">` : formatPct(a.dy)}</td>
+                    <td>${formatPrice(a.teto)}</td>
+                    <td class="${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</td>
+                    <td class="${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</td>
+                    <td>${a.data}</td>
+                    <td>${actions}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editDY(i, valor) {
+            ativos[i].dy = parseFloat(valor) || 0;
+            salvar();
+            renderTable();
+        }
+
+        function addAsset() {
+            const ticker = document.getElementById('ticker').value.toUpperCase().trim();
+            const teto = parseFloat(document.getElementById('teto').value);
+            const dy = parseFloat(document.getElementById('dy').value) || 0;
+
+            if (!ticker || isNaN(teto) || teto <= 0) {
+                alert('Preencha Ticker e Preço Teto!');
+                return;
+            }
+
+            if (ativos.find(a => a.ticker === ticker)) {
+                alert('Ticker já existe!');
+                return;
+            }
+
+            ativos.push({
+                ticker,
+                teto,
+                dy,
+                data: new Date().toLocaleDateString('pt-BR'),
+                price: 0,
+                change: 0
+            });
+
+            salvar();
+            document.getElementById('ticker').value = '';
+            document.getElementById('teto').value = '';
+            document.getElementById('dy').value = '';
+            renderTable();
+            atualizarTudo();
+        }
+
+        function remover(i) {
+            if (confirm(`Remover ${ativos[i].ticker}?`)) {
+                ativos.splice(i, 1);
+                salvar();
+                renderTable();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            renderTable();
+            atualizarTudo();
+            setInterval(atualizarTudo, 15 * 60 * 1000);
         });
     </script>
 </body>
