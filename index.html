@@ -136,10 +136,133 @@
             font-size: 12px;
             color: #666;
         }
+
+        /* CARDS PARA MOBILE */
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
             th, td { padding: 6px 8px; font-size: 12px; }
             .form { flex-direction: column; }
+            
+            .table-wrapper {
+                display: none;
+            }
+            
+            .cards-container {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .card {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                padding: 15px;
+                transition: all 0.3s;
+            }
+            
+            .card.vender {
+                background: rgba(244, 67, 54, 0.15);
+                border-color: rgba(244, 67, 54, 0.3);
+            }
+            
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+                padding-bottom: 12px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .card-ticker {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 600;
+                font-size: 16px;
+            }
+            
+            .card-ticker img {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+            }
+            
+            .card-delete {
+                background: #f44336;
+                padding: 4px 8px;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            
+            .card-delete:active {
+                background: #d32f2f;
+            }
+            
+            .card-main {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            .card-price {
+                font-size: 18px;
+                font-weight: 600;
+            }
+            
+            .card-upside {
+                font-size: 20px;
+                font-weight: 700;
+                padding: 6px 12px;
+                border-radius: 6px;
+                background: rgba(255,255,255,0.1);
+            }
+            
+            .card-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                padding-top: 12px;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                font-size: 12px;
+            }
+            
+            .card-detail-item {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .card-detail-label {
+                color: #888;
+                text-transform: uppercase;
+                font-size: 10px;
+                font-weight: 600;
+            }
+            
+            .card-detail-value {
+                color: #e0e0e0;
+                font-size: 14px;
+                font-weight: 500;
+            }
+            
+            .card-dy-edit {
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(33,150,243,0.3);
+                padding: 4px 8px;
+                border-radius: 4px;
+                color: #e0e0e0;
+                font-size: 14px;
+                text-align: center;
+                min-width: 50px;
+            }
         }
     </style>
 </head>
@@ -181,6 +304,8 @@
             </table>
         </div>
 
+        <div id="cardsContainer" class="cards-container"></div>
+
         <footer>
             © 2026 GeneB3 | Dados via <a href="https://brapi.dev" target="_blank" style="color: #2196f3;">Brapi</a>
         </footer>
@@ -191,13 +316,13 @@
         import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
-  apiKey: "AIzaSyC_XqdCEegJtpbnYXgeoQYxZbOxEm-rCsw",
-  authDomain: "b3gene-valuation.firebaseapp.com",
-  projectId: "b3gene-valuation",
-  storageBucket: "b3gene-valuation.firebasestorage.app",
-  messagingSenderId: "723050704232",
-  appId: "1:723050704232:web:085ec638222c1c4f80fadd"
-};
+            apiKey: "AIzaSyC_XqdCEegJtpbnYXgeoQYxZbOxEm-rCsw",
+            authDomain: "b3gene-valuation.firebaseapp.com",
+            projectId: "b3gene-valuation",
+            storageBucket: "b3gene-valuation.firebasestorage.app",
+            messagingSenderId: "723050704232",
+            appId: "1:723050704232:web:085ec638222c1c4f80fadd"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -210,7 +335,6 @@
         }
         document.getElementById('actionHeader').textContent = isAdmin ? 'AÇÕES' : '';
 
-        // Ouve mudanças em tempo real
         onSnapshot(collection(db, 'ativos'), (snapshot) => {
             ativos = [];
             snapshot.forEach((doc) => {
@@ -258,16 +382,21 @@
 
         function renderTable() {
             const tbody = document.getElementById('tbody');
+            const cardsContainer = document.getElementById('cardsContainer');
             tbody.innerHTML = '';
+            cardsContainer.innerHTML = '';
             
             if (ativos.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#666;">Nenhum ativo adicionado</td></tr>';
+                cardsContainer.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">Nenhum ativo adicionado</div>';
                 return;
             }
 
             ativos.forEach((a) => {
                 const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
                 const downside = -upside;
+                
+                // TABELA (Desktop)
                 const tr = document.createElement('tr');
                 if (upside <= 0) tr.classList.add('vender');
 
@@ -291,6 +420,53 @@
                     <td>${actions}</td>
                 `;
                 tbody.appendChild(tr);
+                
+                // CARDS (Mobile)
+                const card = document.createElement('div');
+                card.className = 'card';
+                if (upside <= 0) card.classList.add('vender');
+                
+                let deleteBtn = '';
+                if (isAdmin) {
+                    deleteBtn = `<button class="card-delete" onclick="remover('${a.id}')">✕</button>`;
+                }
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-ticker">
+                            <img src="https://icons.brapi.dev/icons/${a.ticker}.svg" alt="${a.ticker}">
+                            ${a.ticker}
+                        </div>
+                        ${deleteBtn}
+                    </div>
+                    <div class="card-main">
+                        <div>
+                            <div style="color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 4px;">Preço Atual</div>
+                            <div class="card-price">${formatPrice(a.price || 0)}</div>
+                            <div class="${(a.change || 0) >= 0 ? 'pos' : 'neg'}" style="font-size: 12px; margin-top: 4px;">${formatPct(a.change)}</div>
+                        </div>
+                        <div class="card-upside ${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</div>
+                    </div>
+                    <div class="card-details">
+                        <div class="card-detail-item">
+                            <span class="card-detail-label">DY %</span>
+                            <span class="card-detail-value">${isAdmin ? `<input class="card-dy-edit" value="${a.dy || 0}" onchange="editDY('${a.id}', this.value)">` : formatPct(a.dy || 0)}</span>
+                        </div>
+                        <div class="card-detail-item">
+                            <span class="card-detail-label">Preço Teto</span>
+                            <span class="card-detail-value">${formatPrice(a.teto)}</span>
+                        </div>
+                        <div class="card-detail-item">
+                            <span class="card-detail-label">Downside %</span>
+                            <span class="card-detail-value ${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</span>
+                        </div>
+                        <div class="card-detail-item">
+                            <span class="card-detail-label">Data</span>
+                            <span class="card-detail-value">${a.data}</span>
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
             });
         }
 
