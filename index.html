@@ -95,11 +95,21 @@
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
         }
-        th, td {
-            padding: 8px 10px;
-            text-align: right;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-size: 13px;
+th, td {
+    padding: 8px 10px;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+}
+th:nth-child(1), td:nth-child(1) { text-align: left; width: 15%; }
+th:nth-child(2), td:nth-child(2) { text-align: right; width: 12%; }
+th:nth-child(3), td:nth-child(3) { text-align: right; width: 10%; }
+th:nth-child(4), td:nth-child(4) { text-align: right; width: 8%; }
+th:nth-child(5), td:nth-child(5) { text-align: right; width: 12%; }
+th:nth-child(6), td:nth-child(6) { text-align: right; width: 10%; }
+th:nth-child(7), td:nth-child(7) { text-align: right; width: 10%; }
+th:nth-child(8), td:nth-child(8) { text-align: center; width: 12%; }
+th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
         }
         th { 
             background: rgba(255,255,255,0.08);
@@ -250,7 +260,10 @@
                 }
 
                 tr.innerHTML = `
-                    <td>${a.ticker}</td>
+    <td style="display: flex; align-items: center; gap: 8px;">
+        <img src="https://icons.brapi.dev/icons/${a.ticker}.svg" alt="${a.ticker}" style="width: 20px; height: 20px; border-radius: 50%;">
+        ${a.ticker}
+    </td>
                     <td>${formatPrice(a.price || 0)}</td>
                     <td class="${(a.change || 0) >= 0 ? 'pos' : 'neg'}">${formatPct(a.change)}</td>
                     <td>${isAdmin ? `<input class="dy-edit" value="${a.dy}" onchange="editDY(${i}, this.value)">` : formatPct(a.dy)}</td>
