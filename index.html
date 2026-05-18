@@ -86,7 +86,7 @@
         button:hover { background: #1976d2; transform: translateY(-2px); }
         .update-btn { background: #4caf50; }
         .update-btn:hover { background: #45a049; }
-        .delete-btn { background: #f44336; padding: 6px 12px; font-size: 12px; }
+        .delete-btn { background: #f44336; padding: 6px 12px; font-size: 12px; cursor: pointer; }
         .delete-btn:hover { background: #d32f2f; }
         .table-wrapper { overflow-x: auto; border-radius: 8px; }
         table {
@@ -127,6 +127,7 @@
             border-radius: 4px;
             min-width: 60px;
             text-align: center;
+            color: #e0e0e0;
         }
         footer {
             text-align: center;
@@ -137,28 +138,24 @@
             color: #666;
         }
 
-        /* CARDS PARA MOBILE */
+        /* CARDS - Escondidos por padrão (desktop) */
+        .cards-container {
+            display: none !important;
+        }
+
+        /* MOBILE RESPONSIVO */
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
-            th, td { padding: 6px 8px; font-size: 12px; }
-            .form { flex-direction: column; }
             
             .table-wrapper {
-                display: none;
+                display: none !important;
             }
             
-.cards-container {
-    display: none; /* Esconde os cards por padrão (desktop) */
-}
-
-@media (max-width: 768px) {
-    .cards-container {
-        display: grid; /* Mostra os cards no mobile */
-        grid-template-columns: 1fr;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-}
+            .cards-container {
+                display: grid !important;
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 20px;
             }
             
             .card {
@@ -172,6 +169,10 @@
             .card.vender {
                 background: rgba(244, 67, 54, 0.15);
                 border-color: rgba(244, 67, 54, 0.3);
+            }
+            
+            .card:hover {
+                background: rgba(255,255,255,0.08);
             }
             
             .card-header {
@@ -269,7 +270,10 @@
                 font-size: 14px;
                 text-align: center;
                 min-width: 50px;
+                width: 100%;
             }
+
+            .form { flex-direction: column; }
         }
     </style>
 </head>
@@ -320,7 +324,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyC_XqdCEegJtpbnYXgeoQYxZbOxEm-rCsw",
@@ -344,10 +348,10 @@
 
         onSnapshot(collection(db, 'ativos'), (snapshot) => {
             ativos = [];
-            snapshot.forEach((doc) => {
+            snapshot.forEach((docSnapshot) => {
                 ativos.push({
-                    id: doc.id,
-                    ...doc.data()
+                    id: docSnapshot.id,
+                    ...docSnapshot.data()
                 });
             });
             renderTable();
