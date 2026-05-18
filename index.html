@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GeneB3 - Valuation de ações B3 pelo fluxo de caixa. Uma visão pessoal, descomplicada e divertida.">
+    <meta name="description" content="GeneB3 - Valuation de ações B3 pelo fluxo de caixa.">
     <title>GeneB3 - Valuation B3</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -95,21 +95,11 @@
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
         }
-th, td {
-    padding: 8px 10px;
-    text-align: right;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    font-size: 13px;
-}
-th:nth-child(1), td:nth-child(1) { text-align: left; width: 15%; }
-th:nth-child(2), td:nth-child(2) { text-align: right; width: 12%; }
-th:nth-child(3), td:nth-child(3) { text-align: right; width: 10%; }
-th:nth-child(4), td:nth-child(4) { text-align: right; width: 8%; }
-th:nth-child(5), td:nth-child(5) { text-align: right; width: 12%; }
-th:nth-child(6), td:nth-child(6) { text-align: right; width: 10%; }
-th:nth-child(7), td:nth-child(7) { text-align: right; width: 10%; }
-th:nth-child(8), td:nth-child(8) { text-align: center; width: 12%; }
-th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
+        th, td {
+            padding: 8px 10px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
         }
         th { 
             background: rgba(255,255,255,0.08);
@@ -117,7 +107,15 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
             font-weight: 600;
             text-transform: uppercase;
         }
-        td:first-child, th:first-child { text-align: left; }
+        th:nth-child(1), td:nth-child(1) { text-align: left; width: 15%; }
+        th:nth-child(2), td:nth-child(2) { text-align: right; width: 12%; }
+        th:nth-child(3), td:nth-child(3) { text-align: right; width: 10%; }
+        th:nth-child(4), td:nth-child(4) { text-align: right; width: 8%; }
+        th:nth-child(5), td:nth-child(5) { text-align: right; width: 12%; }
+        th:nth-child(6), td:nth-child(6) { text-align: right; width: 10%; }
+        th:nth-child(7), td:nth-child(7) { text-align: right; width: 10%; }
+        th:nth-child(8), td:nth-child(8) { text-align: center; width: 12%; }
+        th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
         .pos { color: #4caf50; font-weight: 500; }
         .neg { color: #f44336; font-weight: 500; }
         .vender { background: rgba(244, 67, 54, 0.2) !important; }
@@ -151,14 +149,14 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
             <h1>GeneB3</h1>
             <p class="subtitle">Valuation pelo Fluxo de Caixa</p>
             <p class="tagline">Uma visão pessoal, descomplicada e divertida sobre margens de valores e investimentos a longo prazo.</p>
-            <div class="disclaimer">⚠️ AVISO: Este é uma ferramenta pessoal de análise. NÃO é recomendação de investimento. Use para visualizar suas próprias estratégias de valuation.</div>
+            <div class="disclaimer">⚠️ AVISO: Este é uma ferramenta pessoal de análise. NÃO é recomendação de investimento.</div>
         </header>
 
         <div id="adminSection" class="admin-section">
             <div class="form">
                 <input id="ticker" placeholder="Ticker (ex: PETR4)" maxlength="10">
                 <input id="teto" type="number" step="0.01" min="0.01" placeholder="Preço Teto">
-                <input id="dy" type="number" step="0.01" min="0" placeholder="DY % (ex: 8.5)">
+                <input id="dy" type="number" step="0.01" min="0" placeholder="DY %">
                 <button onclick="addAsset()">➕ Adicionar</button>
             </div>
             <button class="update-btn" onclick="atualizarTudo()" style="width: 100%;">🔄 Atualizar Preços</button>
@@ -188,19 +186,43 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
         </footer>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
     <script>
+        // ⚠️ CONFIGURE COM SEUS DADOS FIREBASE
+        const firebaseConfig = {
+   apiKey: "AIzaSyBh8zAxB8N-sQORg0rQbfh76bYiYYfwjYk",
+  authDomain: "geneb3-valuation.firebaseapp.com",
+  databaseURL: "https://geneb3-valuation-default-rtdb.firebaseio.com",
+  projectId: "geneb3-valuation",
+  storageBucket: "geneb3-valuation.firebasestorage.app",
+  messagingSenderId: "128291497154",
+  appId: "1:128291497154:web:98b66544c79b10b2da075b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
         const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
         const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
-        let ativos = JSON.parse(localStorage.getItem('geneB3Ativos') || '[]');
+        let ativos = [];
 
         if (isAdmin) {
             document.getElementById('adminSection').classList.add('show');
         }
         document.getElementById('actionHeader').textContent = isAdmin ? 'AÇÕES' : '';
 
-        function salvar() {
-            localStorage.setItem('geneB3Ativos', JSON.stringify(ativos));
-        }
+        // Ouve mudanças no Firebase em tempo real
+        db.ref('ativos').on('value', (snapshot) => {
+            ativos = [];
+            snapshot.forEach((child) => {
+                ativos.push({
+                    id: child.key,
+                    ...child.val()
+                });
+            });
+            renderTable();
+        });
 
         function formatPrice(p) {
             return p <= 0 ? '-' : `R$ ${parseFloat(p).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -229,14 +251,13 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
             const tbody = document.getElementById('tbody');
             tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Atualizando...</td></tr>';
             
-            const promises = ativos.map(async (a) => {
+            for (let a of ativos) {
                 const q = await fetchQuote(a.ticker);
-                return { ...a, price: q.price, change: q.change };
-            });
-
-            ativos = await Promise.all(promises);
-            salvar();
-            renderTable();
+                db.ref('ativos/' + a.id).update({
+                    price: q.price,
+                    change: q.change
+                });
+            }
         }
 
         function renderTable() {
@@ -248,7 +269,7 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
                 return;
             }
 
-            ativos.forEach((a, i) => {
+            ativos.forEach((a) => {
                 const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
                 const downside = -upside;
                 const tr = document.createElement('tr');
@@ -256,17 +277,17 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
 
                 let actions = '';
                 if (isAdmin) {
-                    actions = `<button class="delete-btn" onclick="remover(${i})">✕</button>`;
+                    actions = `<button class="delete-btn" onclick="remover('${a.id}')">✕</button>`;
                 }
 
                 tr.innerHTML = `
-    <td style="display: flex; align-items: center; gap: 8px;">
-        <img src="https://icons.brapi.dev/icons/${a.ticker}.svg" alt="${a.ticker}" style="width: 20px; height: 20px; border-radius: 50%;">
-        ${a.ticker}
-    </td>
+                    <td style="display: flex; align-items: center; gap: 8px;">
+                        <img src="https://icons.brapi.dev/icons/${a.ticker}.svg" alt="${a.ticker}" style="width: 20px; height: 20px; border-radius: 50%;">
+                        ${a.ticker}
+                    </td>
                     <td>${formatPrice(a.price || 0)}</td>
                     <td class="${(a.change || 0) >= 0 ? 'pos' : 'neg'}">${formatPct(a.change)}</td>
-                    <td>${isAdmin ? `<input class="dy-edit" value="${a.dy}" onchange="editDY(${i}, this.value)">` : formatPct(a.dy)}</td>
+                    <td>${isAdmin ? `<input class="dy-edit" value="${a.dy}" onchange="editDY('${a.id}', this.value)">` : formatPct(a.dy)}</td>
                     <td>${formatPrice(a.teto)}</td>
                     <td class="${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</td>
                     <td class="${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</td>
@@ -277,10 +298,10 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
             });
         }
 
-        function editDY(i, valor) {
-            ativos[i].dy = parseFloat(valor) || 0;
-            salvar();
-            renderTable();
+        function editDY(id, valor) {
+            db.ref('ativos/' + id).update({
+                dy: parseFloat(valor) || 0
+            });
         }
 
         function addAsset() {
@@ -298,7 +319,7 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
                 return;
             }
 
-            ativos.push({
+            db.ref('ativos').push({
                 ticker,
                 teto,
                 dy,
@@ -307,27 +328,19 @@ th:nth-child(9), td:nth-child(9) { text-align: center; width: 8%; }
                 change: 0
             });
 
-            salvar();
             document.getElementById('ticker').value = '';
             document.getElementById('teto').value = '';
             document.getElementById('dy').value = '';
-            renderTable();
             atualizarTudo();
         }
 
-        function remover(i) {
-            if (confirm(`Remover ${ativos[i].ticker}?`)) {
-                ativos.splice(i, 1);
-                salvar();
-                renderTable();
+        function remover(id) {
+            if (confirm('Remover este ativo?')) {
+                db.ref('ativos/' + id).remove();
             }
         }
 
-        window.addEventListener('load', () => {
-            renderTable();
-            atualizarTudo();
-            setInterval(atualizarTudo, 15 * 60 * 1000);
-        });
+        setInterval(atualizarTudo, 15 * 60 * 1000);
     </script>
 </body>
 </html>
