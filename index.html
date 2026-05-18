@@ -412,12 +412,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th onclick="sortTable('ticker')">TICKER</th>
-                        <th onclick="sortTable('price')">PREÇO ATUAL</th>
+                        <th>TICKER</th>
+                        <th>PREÇO ATUAL</th>
                         <th>VARIAÇÃO %</th>
-                        <th onclick="sortTable('dy')">DY %</th>
+                        <th>DY %</th>
                         <th>PREÇO TETO</th>
-                        <th onclick="sortTable('upside')">UPSIDE %</th>
+                        <th>UPSIDE %</th>
                         <th>DOWNSIDE %</th>
                         <th>DATA SALVO</th>
                         <th id="actionHeader"></th>
@@ -454,7 +454,6 @@
         let ativos = [];
         let filteredAtivos = [];
         let currentFilter = { upside: 'all', dy: 'all', search: '' };
-        let currentSort = 'ticker';
 
         if (isAdmin) {
             document.getElementById('adminSection').classList.add('show');
@@ -567,17 +566,23 @@
             const dashboardDiv = document.getElementById('dashboard');
             dashboardDiv.innerHTML = '';
 
-            if (filteredAtivos.length === 0) return;
+            if (ativos.length === 0) return;
 
-            const totalInvestido = filteredAtivos.reduce((sum, a) => sum + (a.teto || 0), 0);
-            const upsides = filteredAtivos.map(a => a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0);
+            const ativosEmCompra = ativos.filter(a => {
+                const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                return upside > 20;
+            }).length;
+
+            const upsides = ativos.map(a => a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0);
             const upsideMedio = upsides.length > 0 ? (upsides.reduce((a, b) => a + b) / upsides.length) : 0;
-            const melhorOportunidade = filteredAtivos.reduce((best, a) => {
+
+            const melhorOportunidade = ativos.reduce((best, a) => {
                 const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
                 const bestUpside = best.price > 0 ? ((best.teto - best.price) / best.price * 100) : 0;
                 return upside > bestUpside ? a : best;
             });
-            const piorDesempenho = filteredAtivos.reduce((worst, a) => {
+
+            const piorDesempenho = ativos.reduce((worst, a) => {
                 const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
                 const worstUpside = worst.price > 0 ? ((worst.teto - worst.price) / worst.price * 100) : 0;
                 return upside < worstUpside ? a : worst;
@@ -588,8 +593,9 @@
 
             dashboardDiv.innerHTML = `
                 <div class="dashboard-card">
-                    <div class="dashboard-label">Total Investido</div>
-                    <div class="dashboard-value">${formatPrice(totalInvestido)}</div>
+                    <div class="dashboard-label">Ativos em Compra</div>
+                    <div class="dashboard-value">${ativosEmCompra}</div>
+                    <div class="dashboard-desc">upside > 20%</div>
                 </div>
                 <div class="dashboard-card">
                     <div class="dashboard-label">Upside Médio</div>
