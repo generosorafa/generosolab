@@ -56,7 +56,7 @@
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        input {
+        input, select {
             flex: 1;
             min-width: 120px;
             padding: 10px 14px;
@@ -67,7 +67,7 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             background: rgba(255,255,255,0.12);
             border-color: #2196f3;
@@ -88,6 +88,87 @@
         .update-btn:hover { background: #45a049; }
         .delete-btn { background: #f44336; padding: 6px 12px; font-size: 12px; cursor: pointer; }
         .delete-btn:hover { background: #d32f2f; }
+
+        /* DASHBOARD CARDS */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .dashboard-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .dashboard-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .dashboard-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4caf50;
+        }
+        .dashboard-value.neg { color: #f44336; }
+        .dashboard-desc {
+            color: #aaa;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* FILTROS */
+        .filters {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 600;
+        }
+        .filter-btn {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .filter-btn.active {
+            background: #2196f3;
+            border-color: #2196f3;
+            color: white;
+        }
+        #searchInput {
+            min-width: 200px;
+            flex: 1;
+        }
+
         .table-wrapper { overflow-x: auto; border-radius: 8px; }
         table {
             width: 100%;
@@ -106,7 +187,9 @@
             text-align: left;
             font-weight: 600;
             text-transform: uppercase;
+            cursor: pointer;
         }
+        th:hover { background: rgba(255,255,255,0.12); }
         th:nth-child(1), td:nth-child(1) { text-align: left; width: 15%; }
         th:nth-child(2), td:nth-child(2) { text-align: right; width: 12%; }
         th:nth-child(3), td:nth-child(3) { text-align: right; width: 10%; }
@@ -146,6 +229,11 @@
         /* MOBILE RESPONSIVO */
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
+            .dashboard { grid-template-columns: 1fr 1fr; }
+            .filters { flex-direction: column; align-items: stretch; }
+            .filter-group { width: 100%; }
+            .filter-btn { flex: 1; }
+            #searchInput { min-width: auto; }
             
             .table-wrapper {
                 display: none !important;
@@ -169,10 +257,6 @@
             .card.vender {
                 background: rgba(244, 67, 54, 0.15);
                 border-color: rgba(244, 67, 54, 0.3);
-            }
-            
-            .card:hover {
-                background: rgba(255,255,255,0.08);
             }
             
             .card-header {
@@ -207,10 +291,6 @@
                 cursor: pointer;
                 font-size: 14px;
                 font-weight: 600;
-            }
-            
-            .card-delete:active {
-                background: #d32f2f;
             }
             
             .card-main {
@@ -272,7 +352,6 @@
                 min-width: 50px;
                 width: 100%;
             }
-
             .form { flex-direction: column; }
         }
     </style>
@@ -296,16 +375,49 @@
             <button class="update-btn" onclick="atualizarTudo()" style="width: 100%;">🔄 Atualizar Preços</button>
         </div>
 
+        <!-- DASHBOARD -->
+        <div class="dashboard" id="dashboard"></div>
+
+        <!-- FILTROS -->
+        <div class="filters">
+            <div class="filter-group">
+                <span class="filter-label">Upside:</span>
+                <button class="filter-btn" onclick="filterUpside('all')">Todos</button>
+                <button class="filter-btn" onclick="filterUpside('high')">+20%</button>
+                <button class="filter-btn" onclick="filterUpside('med')">10-20%</button>
+                <button class="filter-btn" onclick="filterUpside('low')"><10%</button>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">DY:</span>
+                <button class="filter-btn" onclick="filterDY('all')">Todos</button>
+                <button class="filter-btn" onclick="filterDY('high')">Alto >8%</button>
+                <button class="filter-btn" onclick="filterDY('med')">Médio 4-8%</button>
+                <button class="filter-btn" onclick="filterDY('low')">Baixo <4%</button>
+            </div>
+            <div class="filter-group" style="flex: 1; min-width: 200px;">
+                <input id="searchInput" placeholder="🔍 Buscar ticker..." onkeyup="filterSearch()">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Ordenar:</span>
+                <select id="sortSelect" onchange="applySortAndFilters()">
+                    <option value="ticker">Ticker</option>
+                    <option value="upside">Upside</option>
+                    <option value="dy">DY</option>
+                    <option value="price">Preço</option>
+                </select>
+            </div>
+        </div>
+
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>TICKER</th>
-                        <th>PREÇO ATUAL</th>
+                        <th onclick="sortTable('ticker')">TICKER</th>
+                        <th onclick="sortTable('price')">PREÇO ATUAL</th>
                         <th>VARIAÇÃO %</th>
-                        <th>DY %</th>
+                        <th onclick="sortTable('dy')">DY %</th>
                         <th>PREÇO TETO</th>
-                        <th>UPSIDE %</th>
+                        <th onclick="sortTable('upside')">UPSIDE %</th>
                         <th>DOWNSIDE %</th>
                         <th>DATA SALVO</th>
                         <th id="actionHeader"></th>
@@ -340,6 +452,9 @@
         const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
         const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
         let ativos = [];
+        let filteredAtivos = [];
+        let currentFilter = { upside: 'all', dy: 'all', search: '' };
+        let currentSort = 'ticker';
 
         if (isAdmin) {
             document.getElementById('adminSection').classList.add('show');
@@ -349,12 +464,9 @@
         onSnapshot(collection(db, 'ativos'), (snapshot) => {
             ativos = [];
             snapshot.forEach((docSnapshot) => {
-                ativos.push({
-                    id: docSnapshot.id,
-                    ...docSnapshot.data()
-                });
+                ativos.push({ id: docSnapshot.id, ...docSnapshot.data() });
             });
-            renderTable();
+            applySortAndFilters();
         });
 
         function formatPrice(p) {
@@ -371,10 +483,7 @@
                 const r = await fetch(`https://brapi.dev/api/quote/${ticker}?token=${TOKEN}`);
                 const data = await r.json();
                 if (data.results && data.results[0]) {
-                    return {
-                        price: data.results[0].regularMarketPrice || 0,
-                        change: data.results[0].regularMarketChangePercent || 0
-                    };
+                    return { price: data.results[0].regularMarketPrice || 0, change: data.results[0].regularMarketChangePercent || 0 };
                 }
             } catch (e) { console.error(e); }
             return { price: 0, change: 0 };
@@ -384,12 +493,120 @@
             for (let a of ativos) {
                 const q = await fetchQuote(a.ticker);
                 const docRef = doc(db, 'ativos', a.id);
-                await updateDoc(docRef, {
-                    price: q.price,
-                    change: q.change
-                });
+                await updateDoc(docRef, { price: q.price, change: q.change });
             }
         };
+
+        window.filterUpside = function(type) {
+            currentFilter.upside = type;
+            applySortAndFilters();
+            updateFilterButtons();
+        };
+
+        window.filterDY = function(type) {
+            currentFilter.dy = type;
+            applySortAndFilters();
+            updateFilterButtons();
+        };
+
+        window.filterSearch = function() {
+            currentFilter.search = document.getElementById('searchInput').value.toUpperCase();
+            applySortAndFilters();
+        };
+
+        function updateFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent.includes('Todos') && currentFilter.upside === 'all') btn.classList.add('active');
+                if (btn.textContent.includes('+20%') && currentFilter.upside === 'high') btn.classList.add('active');
+                if (btn.textContent.includes('10-20%') && currentFilter.upside === 'med') btn.classList.add('active');
+                if (btn.textContent.includes('<10%') && currentFilter.upside === 'low') btn.classList.add('active');
+                if (btn.textContent.includes('Alto') && currentFilter.dy === 'high') btn.classList.add('active');
+                if (btn.textContent.includes('Médio') && currentFilter.dy === 'med') btn.classList.add('active');
+                if (btn.textContent.includes('Baixo') && currentFilter.dy === 'low') btn.classList.add('active');
+            });
+        }
+
+        function applySortAndFilters() {
+            filteredAtivos = ativos.filter(a => {
+                const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                const dy = a.dy || 0;
+
+                let upsideOk = currentFilter.upside === 'all' || 
+                    (currentFilter.upside === 'high' && upside > 20) ||
+                    (currentFilter.upside === 'med' && upside >= 10 && upside <= 20) ||
+                    (currentFilter.upside === 'low' && upside < 10);
+
+                let dyOk = currentFilter.dy === 'all' ||
+                    (currentFilter.dy === 'high' && dy > 8) ||
+                    (currentFilter.dy === 'med' && dy >= 4 && dy <= 8) ||
+                    (currentFilter.dy === 'low' && dy < 4);
+
+                let searchOk = currentFilter.search === '' || a.ticker.includes(currentFilter.search);
+
+                return upsideOk && dyOk && searchOk;
+            });
+
+            const sortKey = document.getElementById('sortSelect').value;
+            filteredAtivos.sort((a, b) => {
+                const aUpside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                const bUpside = b.price > 0 ? ((b.teto - b.price) / b.price * 100) : 0;
+
+                if (sortKey === 'upside') return bUpside - aUpside;
+                if (sortKey === 'dy') return (b.dy || 0) - (a.dy || 0);
+                if (sortKey === 'price') return (b.price || 0) - (a.price || 0);
+                return a.ticker.localeCompare(b.ticker);
+            });
+
+            renderDashboard();
+            renderTable();
+            updateFilterButtons();
+        }
+
+        function renderDashboard() {
+            const dashboardDiv = document.getElementById('dashboard');
+            dashboardDiv.innerHTML = '';
+
+            if (filteredAtivos.length === 0) return;
+
+            const totalInvestido = filteredAtivos.reduce((sum, a) => sum + (a.teto || 0), 0);
+            const upsides = filteredAtivos.map(a => a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0);
+            const upsideMedio = upsides.length > 0 ? (upsides.reduce((a, b) => a + b) / upsides.length) : 0;
+            const melhorOportunidade = filteredAtivos.reduce((best, a) => {
+                const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                const bestUpside = best.price > 0 ? ((best.teto - best.price) / best.price * 100) : 0;
+                return upside > bestUpside ? a : best;
+            });
+            const piorDesempenho = filteredAtivos.reduce((worst, a) => {
+                const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
+                const worstUpside = worst.price > 0 ? ((worst.teto - worst.price) / worst.price * 100) : 0;
+                return upside < worstUpside ? a : worst;
+            });
+
+            const melhorUpside = melhorOportunidade.price > 0 ? ((melhorOportunidade.teto - melhorOportunidade.price) / melhorOportunidade.price * 100) : 0;
+            const piorUpside = piorDesempenho.price > 0 ? ((piorDesempenho.teto - piorDesempenho.price) / piorDesempenho.price * 100) : 0;
+
+            dashboardDiv.innerHTML = `
+                <div class="dashboard-card">
+                    <div class="dashboard-label">Total Investido</div>
+                    <div class="dashboard-value">${formatPrice(totalInvestido)}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-label">Upside Médio</div>
+                    <div class="dashboard-value ${upsideMedio < 0 ? 'neg' : ''}">${formatPct(upsideMedio)}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-label">Melhor Oportunidade</div>
+                    <div class="dashboard-value pos">${melhorOportunidade.ticker}</div>
+                    <div class="dashboard-desc">+${formatPct(melhorUpside)}</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-label">Pior Desempenho</div>
+                    <div class="dashboard-value ${piorUpside < 0 ? 'neg' : ''}">${piorDesempenho.ticker}</div>
+                    <div class="dashboard-desc">${formatPct(piorUpside)}</div>
+                </div>
+            `;
+        }
 
         function renderTable() {
             const tbody = document.getElementById('tbody');
@@ -397,17 +614,16 @@
             tbody.innerHTML = '';
             cardsContainer.innerHTML = '';
             
-            if (ativos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#666;">Nenhum ativo adicionado</td></tr>';
-                cardsContainer.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">Nenhum ativo adicionado</div>';
+            if (filteredAtivos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#666;">Nenhum ativo encontrado</td></tr>';
+                cardsContainer.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">Nenhum ativo encontrado</div>';
                 return;
             }
 
-            ativos.forEach((a) => {
+            filteredAtivos.forEach((a) => {
                 const upside = a.price > 0 ? ((a.teto - a.price) / a.price * 100) : 0;
                 const downside = -upside;
                 
-                // TABELA (Desktop)
                 const tr = document.createElement('tr');
                 if (upside <= 0) tr.classList.add('vender');
 
@@ -432,7 +648,6 @@
                 `;
                 tbody.appendChild(tr);
                 
-                // CARDS (Mobile)
                 const card = document.createElement('div');
                 card.className = 'card';
                 if (upside <= 0) card.classList.add('vender');
@@ -483,9 +698,7 @@
 
         window.editDY = async function(id, valor) {
             const docRef = doc(db, 'ativos', id);
-            await updateDoc(docRef, {
-                dy: parseFloat(valor) || 0
-            });
+            await updateDoc(docRef, { dy: parseFloat(valor) || 0 });
         };
 
         window.addAsset = async function() {
@@ -504,12 +717,9 @@
             }
 
             await addDoc(collection(db, 'ativos'), {
-                ticker,
-                teto,
-                dy,
+                ticker, teto, dy,
                 data: new Date().toLocaleDateString('pt-BR'),
-                price: 0,
-                change: 0
+                price: 0, change: 0
             });
 
             document.getElementById('ticker').value = '';
