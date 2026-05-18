@@ -186,22 +186,21 @@
         </footer>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-    <script>
         const firebaseConfig = {
- 		 apiKey: "AIzaSyBh8zAxB8N-sQORg0rQbfh76bYiYYfwjYk",
- 		 authDomain: "geneb3-valuation.firebaseapp.com",
- 		 databaseURL: "https://geneb3-valuation-default-rtdb.firebaseio.com",
-  		projectId: "geneb3-valuation",
-  		storageBucket: "geneb3-valuation.firebasestorage.app",
-  		messagingSenderId: "128291497154",
-  		appId: "1:128291497154:web:98b66544c79b10b2da075b"
-        };
+  apiKey: "AIzaSyC_XqdCEegJtpbnYXgeoQYxZbOxEm-rCsw",
+  authDomain: "b3gene-valuation.firebaseapp.com",
+  projectId: "b3gene-valuation",
+  storageBucket: "b3gene-valuation.firebasestorage.app",
+  messagingSenderId: "723050704232",
+  appId: "1:723050704232:web:085ec638222c1c4f80fadd"
+};
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         const TOKEN = 'n26fz9g1XjjNzzrFJrcqf6';
         const isAdmin = new URLSearchParams(window.location.search).get('admin') === 'true';
         let ativos = [];
@@ -211,12 +210,13 @@
         }
         document.getElementById('actionHeader').textContent = isAdmin ? 'AÇÕES' : '';
 
-        db.ref('ativos').on('value', (snapshot) => {
+        // Ouve mudanças em tempo real
+        onSnapshot(collection(db, 'ativos'), (snapshot) => {
             ativos = [];
-            snapshot.forEach((child) => {
+            snapshot.forEach((doc) => {
                 ativos.push({
-                    id: child.key,
-                    ...child.val()
+                    id: doc.id,
+                    ...doc.data()
                 });
             });
             renderTable();
@@ -245,15 +245,16 @@
             return { price: 0, change: 0 };
         }
 
-        async function atualizarTudo() {
+        window.atualizarTudo = async function() {
             for (let a of ativos) {
                 const q = await fetchQuote(a.ticker);
-                db.ref('ativos/' + a.id).update({
+                const docRef = doc(db, 'ativos', a.id);
+                await updateDoc(docRef, {
                     price: q.price,
                     change: q.change
                 });
             }
-        }
+        };
 
         function renderTable() {
             const tbody = document.getElementById('tbody');
@@ -282,7 +283,7 @@
                     </td>
                     <td>${formatPrice(a.price || 0)}</td>
                     <td class="${(a.change || 0) >= 0 ? 'pos' : 'neg'}">${formatPct(a.change)}</td>
-                    <td>${isAdmin ? `<input class="dy-edit" value="${a.dy}" onchange="editDY('${a.id}', this.value)">` : formatPct(a.dy)}</td>
+                    <td>${isAdmin ? `<input class="dy-edit" value="${a.dy || 0}" onchange="editDY('${a.id}', this.value)">` : formatPct(a.dy || 0)}</td>
                     <td>${formatPrice(a.teto)}</td>
                     <td class="${upside >= 0 ? 'pos' : 'neg'}">${formatPct(upside)}</td>
                     <td class="${downside >= 0 ? 'pos' : 'neg'}">${formatPct(downside)}</td>
@@ -293,13 +294,14 @@
             });
         }
 
-        function editDY(id, valor) {
-            db.ref('ativos/' + id).update({
+        window.editDY = async function(id, valor) {
+            const docRef = doc(db, 'ativos', id);
+            await updateDoc(docRef, {
                 dy: parseFloat(valor) || 0
             });
-        }
+        };
 
-        function addAsset() {
+        window.addAsset = async function() {
             const ticker = document.getElementById('ticker').value.toUpperCase().trim();
             const teto = parseFloat(document.getElementById('teto').value);
             const dy = parseFloat(document.getElementById('dy').value) || 0;
@@ -314,7 +316,7 @@
                 return;
             }
 
-            db.ref('ativos').push({
+            await addDoc(collection(db, 'ativos'), {
                 ticker,
                 teto,
                 dy,
@@ -327,13 +329,13 @@
             document.getElementById('teto').value = '';
             document.getElementById('dy').value = '';
             atualizarTudo();
-        }
+        };
 
-        function remover(id) {
+        window.remover = async function(id) {
             if (confirm('Remover este ativo?')) {
-                db.ref('ativos/' + id).remove();
+                await deleteDoc(doc(db, 'ativos', id));
             }
-        }
+        };
 
         setInterval(atualizarTudo, 15 * 60 * 1000);
     </script>
