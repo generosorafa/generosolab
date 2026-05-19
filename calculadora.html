@@ -30,7 +30,17 @@
             background-clip: text;
             margin-bottom: 10px;
         }
-        .subtitle { color: #b0b0b0; font-size: 0.95em; }
+        .subtitle { color: #b0b0b0; font-size: 0.95em; margin-bottom: 20px; }
+        .badge {
+            display: inline-block;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #4caf50;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
         .home-link {
             display: inline-block;
             color: #2196f3;
@@ -89,6 +99,40 @@
         }
         .input-with-dropdown select {
             flex: 0 0 100px;
+        }
+
+        /* TOGGLE */
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .toggle-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .toggle-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .toggle-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .toggle-btn.active {
+            background: #2196f3;
+            border-color: #2196f3;
+            color: white;
         }
 
         .buttons {
@@ -200,6 +244,8 @@
             .buttons { flex-direction: column; }
             .btn-calcular { min-width: auto; }
             .graficos-section { grid-template-columns: 1fr; }
+            .toggle-group { flex-direction: column; align-items: stretch; }
+            .toggle-btn { flex: 1; }
         }
     </style>
 </head>
@@ -209,9 +255,16 @@
             <a href="index.html" class="home-link">← Voltar ao menu</a>
             <h1>💰 Calculadora de Juros Compostos</h1>
             <p class="subtitle">Simule seus investimentos e veja o poder dos juros compostos</p>
+            <div class="badge">🏆 A Calculadora mais realista para investidores brasileiros</div>
         </header>
 
         <div class="inputs-section">
+            <div class="toggle-group">
+                <span class="toggle-label">Quando você faz os aportes?</span>
+                <button class="toggle-btn active" id="btnFinal" onclick="setAporteType('final')">Final do Mês</button>
+                <button class="toggle-btn" id="btnInicio" onclick="setAporteType('inicio')">Início do Mês</button>
+            </div>
+
             <div class="input-row">
                 <div class="input-group">
                     <label>Valor Inicial</label>
@@ -256,13 +309,13 @@
             <div class="resultado-title">Resultado:</div>
             
             <div class="resultado-cards">
+                <div class="card investido">
+                    <div class="card-label">Total Investido</div>
+                    <div class="card-value" id="totalInvestido">R$ 0,00</div>
+                </div>
                 <div class="card">
                     <div class="card-label">Total em Juros</div>
                     <div class="card-value" id="totalJuros">R$ 0,00</div>
-                </div>
-                <div class="card investido">
-                    <div class="card-label">Valor Total Investido</div>
-                    <div class="card-value" id="totalInvestido">R$ 0,00</div>
                 </div>
                 <div class="card final">
                     <div class="card-label">Valor Total Final</div>
@@ -283,19 +336,31 @@
         </div>
 
         <footer>
-            © 2026 Calculadora de Juros Compostos | Ferramenta de análise financeira pessoal
+            © 2026 Calculadora de Juros Compostos | A calculadora mais realista para investidores brasileiros
         </footer>
     </div>
 
     <script>
         let chartDonut = null;
         let chartLinha = null;
+        let aporteType = 'final';
 
         function formatPrice(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
             }).format(value);
+        }
+
+        function setAporteType(type) {
+            aporteType = type;
+            document.getElementById('btnFinal').classList.remove('active');
+            document.getElementById('btnInicio').classList.remove('active');
+            if (type === 'final') {
+                document.getElementById('btnFinal').classList.add('active');
+            } else {
+                document.getElementById('btnInicio').classList.add('active');
+            }
         }
 
         function calcular() {
@@ -326,11 +391,18 @@
                 meses = periodo * 12;
             }
 
+            // CÁLCULO JUROS COMPOSTOS
             let valorComJuros = valorInicial * Math.pow(1 + taxaMensal, meses);
             
             let aportesComJuros = 0;
             if (taxaMensal !== 0) {
-                aportesComJuros = aporteMensal * (Math.pow(1 + taxaMensal, meses) - 1) / taxaMensal;
+                if (aporteType === 'final') {
+                    // Aportes no FINAL do mês (Ordinary Annuity)
+                    aportesComJuros = aporteMensal * (Math.pow(1 + taxaMensal, meses) - 1) / taxaMensal;
+                } else {
+                    // Aportes no INÍCIO do mês (Annuity Due)
+                    aportesComJuros = aporteMensal * (Math.pow(1 + taxaMensal, meses) - 1) / taxaMensal * (1 + taxaMensal);
+                }
             } else {
                 aportesComJuros = aporteMensal * meses;
             }
@@ -339,8 +411,8 @@
             const totalInvestido = valorInicial + (aporteMensal * meses);
             const totalJuros = valorFinal - totalInvestido;
 
-            document.getElementById('totalJuros').textContent = formatPrice(totalJuros);
             document.getElementById('totalInvestido').textContent = formatPrice(totalInvestido);
+            document.getElementById('totalJuros').textContent = formatPrice(totalJuros);
             document.getElementById('valorFinal').textContent = formatPrice(valorFinal);
             document.getElementById('resultadoSection').style.display = 'block';
             document.getElementById('graficosSection').style.display = 'grid';
@@ -410,7 +482,11 @@
 
                 let totalComJuros = valorInicial * Math.pow(1 + taxaMensal, i);
                 if (taxaMensal !== 0) {
-                    totalComJuros += aporteMensal * (Math.pow(1 + taxaMensal, i) - 1) / taxaMensal;
+                    if (aporteType === 'final') {
+                        totalComJuros += aporteMensal * (Math.pow(1 + taxaMensal, i) - 1) / taxaMensal;
+                    } else {
+                        totalComJuros += aporteMensal * (Math.pow(1 + taxaMensal, i) - 1) / taxaMensal * (1 + taxaMensal);
+                    }
                 } else {
                     totalComJuros += aporteMensal * i;
                 }
@@ -477,16 +553,6 @@
                                 label: function(context) {
                                     const value = formatPrice(context.raw);
                                     return context.dataset.label + ': ' + value;
-                                },
-                                afterLabel: function(context) {
-                                    if (context.dataIndex === 0) return;
-                                    
-                                    const datasetIndex = context.datasetIndex;
-                                    if (datasetIndex === 0) {
-                                        const totalComJuros = context.chart.data.datasets[1].data[context.dataIndex];
-                                        const investido = context.raw;
-                                        return 'Total com Juros: ' + formatPrice(totalComJuros);
-                                    }
                                 }
                             }
                         }
