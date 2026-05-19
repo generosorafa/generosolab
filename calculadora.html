@@ -101,7 +101,6 @@
             flex: 0 0 100px;
         }
 
-        /* TOGGLE */
         .toggle-group {
             display: flex;
             gap: 10px;
@@ -344,6 +343,7 @@
         let chartDonut = null;
         let chartLinha = null;
         let aporteType = 'final';
+        let graficoData = { investido: [], total: [] };
 
         function formatPrice(value) {
             return new Intl.NumberFormat('pt-BR', {
@@ -391,16 +391,13 @@
                 meses = periodo * 12;
             }
 
-            // CÁLCULO JUROS COMPOSTOS
             let valorComJuros = valorInicial * Math.pow(1 + taxaMensal, meses);
             
             let aportesComJuros = 0;
             if (taxaMensal !== 0) {
                 if (aporteType === 'final') {
-                    // Aportes no FINAL do mês (Ordinary Annuity)
                     aportesComJuros = aporteMensal * (Math.pow(1 + taxaMensal, meses) - 1) / taxaMensal;
                 } else {
-                    // Aportes no INÍCIO do mês (Annuity Due)
                     aportesComJuros = aporteMensal * (Math.pow(1 + taxaMensal, meses) - 1) / taxaMensal * (1 + taxaMensal);
                 }
             } else {
@@ -493,6 +490,8 @@
                 dataTotal.push(totalComJuros);
             }
 
+            graficoData = { investido: dataInvestido, total: dataTotal };
+
             chartLinha = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -539,13 +538,13 @@
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            backgroundColor: 'rgba(0,0,0,0.9)',
                             titleColor: '#fff',
                             bodyColor: '#fff',
                             borderColor: '#BFD7E7',
                             borderWidth: 1,
-                            padding: 12,
-                            displayColors: false,
+                            padding: 15,
+                            displayColors: true,
                             callbacks: {
                                 title: function(context) {
                                     return 'Mês ' + context[0].label;
@@ -553,6 +552,16 @@
                                 label: function(context) {
                                     const value = formatPrice(context.raw);
                                     return context.dataset.label + ': ' + value;
+                                },
+                                afterLabel: function(context) {
+                                    const mesIndex = context.dataIndex;
+                                    const investido = graficoData.investido[mesIndex];
+                                    const total = graficoData.total[mesIndex];
+                                    const juros = total - investido;
+                                    
+                                    if (context.datasetIndex === 0) {
+                                        return 'Total de Juros: ' + formatPrice(juros);
+                                    }
                                 }
                             }
                         }
