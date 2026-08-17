@@ -1,41 +1,18 @@
 "use client";
+/* eslint-disable @next/next/no-img-element -- logotipos pequenos e dinâmicos fornecidos pela API */
 
-import { RefreshCw, WifiOff } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-
-type Quote = { symbol: string; name: string; price: number; change: number; marketTime: string | null };
-type MarketPayload = { source: string; delayed?: boolean; fetchedAt: string; quotes: Quote[]; error?: string };
+import { ArrowDown, RefreshCw, WifiOff } from "lucide-react";
+import { EDITORIAL_REFERENCES } from "../lib/editorial-radar.js";
+import type { MarketState, Quote } from "./use-market-data";
 
 const price = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
 
-export function MarketBoard() {
-  const [data, setData] = useState<MarketPayload | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [stale, setStale] = useState(false);
+function QuoteLogo({ quote, symbol }: { quote?: Quote; symbol: string }) {
+  return <span className="quote-logo" aria-hidden="true"><b>{symbol.slice(0, 2)}</b>{quote?.logoUrl && <img src={quote.logoUrl} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />}</span>;
+}
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/market", { headers: { Accept: "application/json" } });
-      const payload = await response.json() as MarketPayload;
-      if (!response.ok || !payload.quotes?.length) throw new Error(payload.error ?? "Sem cotações disponíveis");
-      setData(payload);
-      setStale(false);
-      localStorage.setItem("generoso-lab.market-cache", JSON.stringify(payload));
-    } catch {
-      try {
-        const cached = JSON.parse(localStorage.getItem("generoso-lab.market-cache") ?? "null") as MarketPayload | null;
-        if (cached?.quotes?.length) { setData(cached); setStale(true); }
-      } catch { /* cache inválido é ignorado */ }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => void load());
-    return () => cancelAnimationFrame(frame);
-  }, [load]);
+export function MarketBoard({ market }: { market: MarketState }) {
+  const { data, loading, stale, load } = market;
 
   return (
     <div className="market-board">
@@ -46,7 +23,15 @@ export function MarketBoard() {
       <div className="quotes-row">
         {loading && !data && Array.from({ length: 4 }, (_, index) => <div className="quote skeleton" key={index}><i /><i /></div>)}
         {!loading && !data && <div className="market-empty"><WifiOff size={15} /><span>Dados indisponíveis agora. Nenhum preço foi substituído por zero.</span></div>}
-        {data?.quotes.map((quote) => <div className="quote" key={quote.symbol}><div><b>{quote.symbol}</b><small>{quote.name}</small></div><div><strong>{price.format(quote.price)}</strong><span className={quote.change > 0 ? "up" : quote.change < 0 ? "down" : ""}>{quote.change > 0 ? "+" : ""}{quote.change.toFixed(2)}%</span></div></div>)}
+        {data && EDITORIAL_REFERENCES.map((reference) => {
+          const quote = data.quotes.find((item) => item.symbol === reference.symbol);
+          return <a className={`quote ${quote ? "" : "unavailable"}`} key={reference.symbol} href={`#editorial-${reference.symbol}`} aria-label={`Ver referência editorial de ${reference.symbol}`}>
+            <QuoteLogo quote={quote} symbol={reference.symbol} />
+            <div className="quote-company"><b>{reference.symbol}</b><small>{quote?.name ?? reference.company}</small></div>
+            <div className="quote-price">{quote ? <><strong>{price.format(quote.price)}</strong><span className={quote.change > 0 ? "up" : quote.change < 0 ? "down" : ""}>{quote.change > 0 ? "+" : ""}{quote.change.toFixed(2)}%</span></> : <><strong>—</strong><span>indisponível</span></>}</div>
+            <ArrowDown className="quote-jump" size={12} />
+          </a>;
+        })}
       </div>
       <div className="market-meta"><span>Fonte: {data?.source ?? "brapi.dev"}</span><span>cache de 1 hora</span>{data && <time dateTime={data.fetchedAt}>{new Date(data.fetchedAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</time>}<button onClick={() => void load()} disabled={loading} aria-label="Atualizar cotações"><RefreshCw size={13} className={loading ? "spin" : ""} /></button></div>
     </div>

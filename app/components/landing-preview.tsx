@@ -8,8 +8,10 @@ import {
   ShieldCheck, Sparkles, Sun, Telescope, WalletCards, X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { EditorialRadar } from "./editorial-radar";
 import { MarketBoard } from "./market-board";
 import { ToolsLab } from "./tools-lab";
+import { useMarketData } from "./use-market-data";
 
 const HeroScene = dynamic(() => import("./hero-scene"), { ssr: false });
 
@@ -79,6 +81,7 @@ export function LandingPreview() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
+  const market = useMarketData();
 
   useEffect(() => {
     const saved = localStorage.getItem("generoso-lab.theme") as "light" | "dark" | null;
@@ -113,9 +116,9 @@ export function LandingPreview() {
         <nav className={menuOpen ? "open" : ""} aria-label="Navegação principal">
           <a href="#jornada" onClick={() => setMenuOpen(false)}>Aprender</a>
           <a href="#ferramentas" onClick={() => setMenuOpen(false)}>Ferramentas</a>
+          <a href="#radar-editorial" onClick={() => setMenuOpen(false)}>Radar</a>
           <a href="#dossies" onClick={() => setMenuOpen(false)}>Dossiês</a>
-          <a href="#radar" onClick={() => setMenuOpen(false)}>Radar</a>
-          <a href="#metodo" onClick={() => setMenuOpen(false)}>Método</a>
+          <a href="#radar" onClick={() => setMenuOpen(false)}>Conteúdo</a>
         </nav>
         <button className="theme-toggle" onClick={toggleTheme} aria-label={`Ativar tema ${theme === "dark" ? "claro" : "escuro"}`}>{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen}>{menuOpen ? <X size={19} /> : <Menu size={19} />}</button>
@@ -140,7 +143,7 @@ export function LandingPreview() {
         </div>
       </section>
 
-      <div className="market-wrap"><MarketBoard /></div>
+      <div className="market-wrap"><MarketBoard market={market} /></div>
 
       <section className="journey-section" id="jornada">
         <SectionTitle kicker="A ordem importa" title="Antes do ativo, vem a base." text="Uma jornada pensada para reduzir ansiedade e colocar cada decisão no momento certo." />
@@ -153,6 +156,8 @@ export function LandingPreview() {
       </section>
 
       <section className="tools-section" id="ferramentas"><div className="section-shell"><SectionTitle kicker="Ferramentas práticas" title="Faça o plano caber na vida real." text="Simule, compare e avance no seu ritmo. Os dados dos desafios ficam apenas no navegador deste dispositivo." dark /><ToolsLab /></div></section>
+
+      <EditorialRadar market={market} />
 
       <section className="learning-section">
         <SectionTitle kicker="Biblioteca essencial" title="Conceitos que sustentam boas decisões." text="Conteúdo original inspirado em princípios de planejamento, análise de empresas e valuation — sempre com fonte e contexto nas versões completas." />

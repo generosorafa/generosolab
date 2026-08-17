@@ -1,4 +1,6 @@
-const TICKERS = ["PETR4", "VALE3", "ITUB4", "MGLU3"];
+import { EDITORIAL_REFERENCES } from "../../lib/editorial-radar.js";
+
+const TICKERS = EDITORIAL_REFERENCES.map(({ symbol }) => symbol);
 
 type BrapiQuote = {
   symbol: string;
@@ -6,6 +8,7 @@ type BrapiQuote = {
   regularMarketPrice?: number;
   regularMarketChangePercent?: number;
   regularMarketTime?: string;
+  logourl?: string;
 };
 
 export async function GET() {
@@ -14,7 +17,7 @@ export async function GET() {
     const headers: Record<string, string> = { Accept: "application/json" };
     if (token) headers.Authorization = `Bearer ${token}`;
 
-    const quotes = await Promise.all(TICKERS.map(async (ticker) => {
+    const results = await Promise.allSettled(TICKERS.map(async (ticker) => {
       const response = await fetch(`https://brapi.dev/api/quote/${ticker}?fundamental=false`, {
         headers,
         next: { revalidate: 3600 },
@@ -29,8 +32,11 @@ export async function GET() {
         price: quote.regularMarketPrice,
         change: quote.regularMarketChangePercent ?? 0,
         marketTime: quote.regularMarketTime ?? null,
+        logoUrl: quote.logourl ?? null,
       };
     }));
+    const quotes = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+    if (!quotes.length) throw new Error("Cotações temporariamente indisponíveis");
 
     return Response.json({
       source: "brapi.dev",

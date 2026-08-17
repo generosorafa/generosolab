@@ -13,6 +13,8 @@ Portal gratuito de educação financeira, ferramentas e leituras editoriais inde
 - Plano 125 mil: grade de R$ 1 a R$ 500 = R$ 125.250, sem valor inicial obrigatório;
 - progresso dos desafios salvo apenas no dispositivo;
 - API server-side de cotações sandbox com cache de uma hora e fallback para o último dado válido;
+- Radar compacto com PETR4, VALE3, ITUB4 e BBAS3, logotipos e atalhos para a leitura completa;
+- Radar Editorial com preços-teto datados, distância percentual e estados neutros, sem sinais de compra ou venda;
 - estrutura de dossiês, Radar, vídeo da semana, curadoria de três canais e guia de uso do Investidor10;
 - metodologia, termos e privacidade;
 - animações leves com Motion e GSAP, além de cena Three.js carregada sob demanda em telas maiores.
