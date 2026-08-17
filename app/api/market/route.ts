@@ -10,9 +10,13 @@ type BrapiQuote = {
 
 export async function GET() {
   try {
+    const token = process.env.BRAPI_API_TOKEN?.trim();
+    const headers: Record<string, string> = { Accept: "application/json" };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
     const quotes = await Promise.all(TICKERS.map(async (ticker) => {
       const response = await fetch(`https://brapi.dev/api/quote/${ticker}?fundamental=false`, {
-        headers: { Accept: "application/json" },
+        headers,
         next: { revalidate: 3600 },
       });
       if (!response.ok) throw new Error(`Falha ${response.status} ao consultar ${ticker}`);

@@ -40,6 +40,33 @@ const dossiers = [
   { ticker: "ITUB4", name: "Itaú Unibanco", type: "Serviços financeiros", note: "Em revisão editorial" },
 ];
 
+const channels = [
+  {
+    rank: "01",
+    name: "Geração Dividendos",
+    url: "https://www.youtube.com/@geracaodividendoss",
+    focus: "Dividendos, FIIs, ações pagadoras e estudos práticos de carteira.",
+    reading: "É o destaque da curadoria: profundidade prática e conteúdo que, na nossa leitura, costuma ter nível de curso pago, disponível gratuitamente.",
+    featured: true,
+  },
+  {
+    rank: "02",
+    name: "Investidor Sardinha",
+    url: "https://www.youtube.com/@investidorsardinha",
+    focus: "Educação financeira ampla, construção de carteira e leitura do mercado em linguagem direta.",
+    reading: "Uma porta de entrada acessível para ligar comportamento, planejamento e diferentes classes de ativos.",
+    featured: false,
+  },
+  {
+    rank: "03",
+    name: "Canal do Holder",
+    url: "https://www.youtube.com/@CanaldoHolder",
+    focus: "Buy and hold, análise fundamentalista e longo prazo no Brasil e no exterior.",
+    reading: "Bom contraponto para quem quer estudar empresas com mentalidade de sócio e horizonte longo.",
+    featured: false,
+  },
+];
+
 function Brand() {
   return <a className="brand" href="#inicio" aria-label="Generoso Lab, início"><span className="brand-mark" aria-hidden="true"><i>G</i><i>L</i></span><span>Generoso <b>Lab</b></span></a>;
 }
@@ -108,7 +135,7 @@ export function LandingPreview() {
           <div className="fallback-orbits"><div className="orbital orbital-a" /><div className="orbital orbital-b" /><div className="orbital orbital-c" /></div>
           <div className="core"><span>GL</span><small>LAB</small></div>
           <div className="metric metric-a"><b>52</b><span>semanas</span></div>
-          <div className="metric metric-b"><b>R$ 135 mil</b><span>plano de acúmulo</span></div>
+          <div className="metric metric-b"><b>R$ 125 mil</b><span>plano de acúmulo</span></div>
           <div className="metric metric-c"><ShieldCheck size={15} /><span>sem indicação</span></div>
         </div>
       </section>
@@ -142,8 +169,24 @@ export function LandingPreview() {
         <SectionTitle kicker="Radar de conteúdo" title="Boas fontes merecem contexto." text="Vídeos e influenciadores só entram depois de uma curadoria clara: profundidade, transparência comercial, histórico de correções e separação entre educação e recomendação." />
         <div className="radar-grid">
           <article className="video-card empty-card"><div className="video-frame"><div className="play-orbit"><Play size={22} fill="currentColor" /></div><span>Vídeo da semana</span></div><div className="video-copy"><span className="track-eyebrow">Curadoria em preparação</span><h3>O primeiro vídeo será escolhido a partir dos links enviados.</h3><p>Antes de publicar, registraremos por que vale o tempo, o que é fato, o que é opinião e possíveis conflitos comerciais.</p></div></article>
-          <article className="influencer-card"><div className="influencer-heading"><GraduationCap size={22} /><div><span className="track-eyebrow">Principais influenciadores</span><h3>Recomendados com critério</h3></div></div><p>Nenhum nome foi inventado. Os canais aparecerão aqui após você enviar os links do YouTube.</p><div className="influencer-slots">{["Didática e profundidade", "Transparência e conflitos", "Minha leitura do canal"].map((label, index) => <div key={label}><span>0{index + 1}</span><b>{label}</b><small>Em avaliação</small></div>)}</div><div className="my-read"><Eye size={17} /><p><b>Minha leitura</b> será a opinião editorial do Generoso Lab — sem exibir nome pessoal e sempre separada dos fatos verificáveis.</p></div></article>
+          <div className="channels-panel">
+            <div className="influencer-heading"><GraduationCap size={22} /><div><span className="track-eyebrow">Principais influenciadores</span><h3>Canais recomendados</h3></div></div>
+            <div className="channel-list">
+              {channels.map((channel) => <article key={channel.url} className={`channel-card ${channel.featured ? "featured" : ""}`}>
+                <div className="channel-card-top"><span>{channel.rank}</span>{channel.featured && <b>Destaque do Lab</b>}<a href={channel.url} target="_blank" rel="noreferrer" aria-label={`Abrir ${channel.name} no YouTube`}><ArrowRight size={15} /></a></div>
+                <h4>{channel.name}</h4>
+                <p><b>Foco observado:</b> {channel.focus}</p>
+                <p className="channel-reading"><Eye size={14} /><span><b>Minha leitura:</b> {channel.reading}</span></p>
+              </article>)}
+            </div>
+            <small className="curation-note">A presença nesta lista não valida toda afirmação nem todo produto comercial do canal. Compare fontes e forme sua própria leitura.</small>
+          </div>
         </div>
+        <article className="research-card">
+          <div className="research-icon"><FileSearch size={22} /></div>
+          <div><span className="track-eyebrow">Ferramenta externa · sem vínculo comercial</span><h3>Use o Investidor10 como mapa de pesquisa, não como resposta pronta.</h3><p>É útil para visualizar histórico de indicadores, crescimento, proventos, gráficos e comparar empresas. Use esses dados para organizar perguntas e confirme fatos relevantes nas fontes primárias da B3, CVM e Relações com Investidores da companhia.</p></div>
+          <a href="https://investidor10.com.br/" target="_blank" rel="noreferrer">Explorar Investidor10 <ArrowRight size={16} /></a>
+        </article>
       </section>
 
       <section className="method-section" id="metodo">

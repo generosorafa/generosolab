@@ -69,5 +69,4 @@ export function amountForWeek(week) {
 
 export const CHALLENGE_52_TOTAL = 6890;
 export const GRID_500_TOTAL = 125250;
-export const PLAN_135_BASE = 10000;
-export const PLAN_135_TOTAL = GRID_500_TOTAL + PLAN_135_BASE;
+export const PLAN_125_TOTAL = GRID_500_TOTAL;

@@ -6,7 +6,7 @@ import {
   equivalentMonthlyRate,
   GRID_500_TOTAL,
   monthlyContributionForGoal,
-  PLAN_135_TOTAL,
+  PLAN_125_TOTAL,
   simulateCompoundInterest,
 } from "../app/lib/finance.js";
 
@@ -38,5 +38,5 @@ test("mantém os totais exatos dos dois desafios", () => {
   assert.equal(total52, CHALLENGE_52_TOTAL);
   assert.equal(total52, 6890);
   assert.equal(total500, GRID_500_TOTAL);
-  assert.equal(PLAN_135_TOTAL, 135250);
+  assert.equal(PLAN_125_TOTAL, 125250);
 });

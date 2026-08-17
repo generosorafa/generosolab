@@ -8,12 +8,11 @@ import {
   CHALLENGE_52_TOTAL,
   GRID_500_TOTAL,
   monthlyContributionForGoal,
-  PLAN_135_BASE,
-  PLAN_135_TOTAL,
+  PLAN_125_TOTAL,
   simulateCompoundInterest,
 } from "../lib/finance.js";
 
-type ToolId = "juros" | "meta" | "reserva" | "52" | "135";
+type ToolId = "juros" | "meta" | "reserva" | "52" | "125";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 const moneyPrecise = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
@@ -23,7 +22,7 @@ const tools: { id: ToolId; label: string; icon: typeof Calculator }[] = [
   { id: "meta", label: "Planejar uma meta", icon: Target },
   { id: "reserva", label: "Reserva", icon: Shield },
   { id: "52", label: "52 semanas", icon: Flag },
-  { id: "135", label: "Plano 135 mil", icon: PiggyBank },
+  { id: "125", label: "Plano 125 mil", icon: PiggyBank },
 ];
 
 function NumericField({ label, value, onChange, suffix, min = 0, max, step = 1 }: {
@@ -50,20 +49,61 @@ function GrowthChart({ points }: { points: { year: number; balance: number; cont
   const line = points.map((point, index) => `${index === 0 ? "M" : "L"}${x(index)},${y(point.balance)}`).join(" ");
   const contributed = points.map((point, index) => `${index === 0 ? "M" : "L"}${x(index)},${y(point.contributed)}`).join(" ");
   const area = `${line} L${x(points.length - 1)},${height - pad} L${x(0)},${height - pad} Z`;
+  const [selectedIndex, setSelectedIndex] = useState(Math.max(0, points.length - 1));
+  const [pinned, setPinned] = useState(false);
+  const activeIndex = Math.max(0, Math.min(points.length - 1, selectedIndex));
+  const selected = points[activeIndex] ?? points.at(-1) ?? { year: 0, balance: 0, contributed: 0 };
+  const earnings = selected.balance - selected.contributed;
+
+  const selectFromClientX = (clientX: number, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    const relativeX = ((clientX - rect.left) / Math.max(1, rect.width)) * width;
+    const index = Math.round(((relativeX - pad) / (width - pad * 2)) * Math.max(1, points.length - 1));
+    setSelectedIndex(Math.max(0, Math.min(points.length - 1, index)));
+  };
 
   return (
     <figure className="growth-chart">
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Evolução estimada do patrimônio e do valor aportado ao longo do tempo">
-        <defs>
-          <linearGradient id="growth-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent-bright)" stopOpacity=".38" /><stop offset="1" stopColor="var(--accent-bright)" stopOpacity="0" /></linearGradient>
-        </defs>
-        {[.25,.5,.75].map((level) => <line key={level} x1="18" x2="702" y1={height * level} y2={height * level} className="chart-gridline" />)}
-        <path d={area} fill="url(#growth-fill)" />
-        <path d={contributed} className="chart-contributed" />
-        <path d={line} className="chart-balance" />
-        <circle cx={x(points.length - 1)} cy={y(points.at(-1)?.balance ?? 0)} r="5" className="chart-dot" />
-      </svg>
-      <figcaption><span className="legend-total" /> Patrimônio estimado <span className="legend-contributed" /> Total aportado</figcaption>
+      <div className="chart-plot">
+        <button
+          type="button"
+          className="chart-interaction"
+          aria-label="Gráfico interativo. Mova o cursor, toque ou use as setas para inspecionar cada período."
+          onPointerMove={(event) => selectFromClientX(event.clientX, event.currentTarget)}
+          onPointerDown={(event) => { selectFromClientX(event.clientX, event.currentTarget); setPinned(true); }}
+          onPointerLeave={() => { if (!pinned) setSelectedIndex(points.length - 1); }}
+          onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            event.preventDefault();
+            if (event.key === "Home") setSelectedIndex(0);
+            if (event.key === "End") setSelectedIndex(points.length - 1);
+            if (event.key === "ArrowLeft") setSelectedIndex((current) => Math.max(0, Math.min(points.length - 1, current) - 1));
+            if (event.key === "ArrowRight") setSelectedIndex((current) => Math.min(points.length - 1, current + 1));
+            setPinned(true);
+          }}
+        >
+          <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Evolução estimada do patrimônio e do valor aportado ao longo do tempo">
+            <defs>
+              <linearGradient id="growth-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent-bright)" stopOpacity=".38" /><stop offset="1" stopColor="var(--accent-bright)" stopOpacity="0" /></linearGradient>
+            </defs>
+            {[.25,.5,.75].map((level) => <line key={level} x1="18" x2="702" y1={height * level} y2={height * level} className="chart-gridline" />)}
+            <path d={area} fill="url(#growth-fill)" />
+            <path d={contributed} className="chart-contributed" />
+            <path d={line} className="chart-balance" />
+            <line x1={x(activeIndex)} x2={x(activeIndex)} y1={pad} y2={height - pad} className="chart-guide" />
+            <circle cx={x(activeIndex)} cy={y(selected.contributed)} r="4" className="chart-dot-contributed" />
+            <circle cx={x(activeIndex)} cy={y(selected.balance)} r="6" className="chart-dot" />
+          </svg>
+        </button>
+        <figcaption><span className="legend-total" /> Patrimônio estimado <span className="legend-contributed" /> Total aportado</figcaption>
+      </div>
+      <aside className="chart-inspector" aria-live="polite">
+        <span>{selected.year === 0 ? "Ponto de partida" : `Até o ano ${selected.year}`}</span>
+        <div><small>Valor aportado</small><b>{moneyPrecise.format(selected.contributed)}</b></div>
+        <div><small>Juros estimados</small><b>{moneyPrecise.format(earnings)}</b></div>
+        <div className="chart-inspector-total"><small>Somatória</small><strong>{moneyPrecise.format(selected.balance)}</strong></div>
+        <button type="button" onClick={() => { setPinned(false); setSelectedIndex(points.length - 1); }}>{pinned ? "Voltar ao resultado final" : "Passe pela linha ou toque"}</button>
+      </aside>
     </figure>
   );
 }
@@ -169,14 +209,20 @@ function ReserveTool() {
   );
 }
 
-function useSavedSet(key: string) {
+function useSavedSet(key: string, legacyKey?: string) {
   const [set, setSet] = useState<Set<number>>(new Set());
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(key) ?? "[]");
-      if (Array.isArray(saved)) queueMicrotask(() => setSet(new Set(saved.filter((value) => Number.isInteger(value)))));
+      const current = localStorage.getItem(key);
+      const raw = current ?? (legacyKey ? localStorage.getItem(legacyKey) : null) ?? "[]";
+      const saved = JSON.parse(raw);
+      if (Array.isArray(saved)) {
+        const migrated = saved.filter((value) => Number.isInteger(value));
+        if (current === null && legacyKey) localStorage.setItem(key, JSON.stringify(migrated));
+        queueMicrotask(() => setSet(new Set(migrated)));
+      }
     } catch { /* dado inválido é ignorado */ }
-  }, [key]);
+  }, [key, legacyKey]);
   const update = (next: Set<number>) => {
     setSet(new Set(next));
     localStorage.setItem(key, JSON.stringify([...next].sort((a, b) => a - b)));
@@ -212,27 +258,19 @@ function Challenge52() {
   );
 }
 
-function Plan135() {
-  const { set, toggle, reset } = useSavedSet("generoso-lab.challenge135");
+function Plan125() {
+  const { set, toggle, reset } = useSavedSet("generoso-lab.challenge125", "generoso-lab.challenge135");
   const [range, setRange] = useState(0);
-  const [baseDone, setBaseDone] = useState(false);
-  useEffect(() => {
-    const saved = localStorage.getItem("generoso-lab.challenge135-base") === "true";
-    queueMicrotask(() => setBaseDone(saved));
-  }, []);
-  const toggleBase = () => { const next = !baseDone; setBaseDone(next); localStorage.setItem("generoso-lab.challenge135-base", String(next)); };
   const gridSaved = [...set].reduce((total, value) => total + value, 0);
-  const saved = gridSaved + (baseDone ? PLAN_135_BASE : 0);
   const values = Array.from({ length: 100 }, (_, index) => range * 100 + index + 1);
   return (
     <div className="challenge-layout plan-layout">
       <div className="challenge-summary">
-        <span className="tool-icon"><PiggyBank size={19} /></span><span className="track-eyebrow">Plano 135 mil</span>
+        <span className="tool-icon"><PiggyBank size={19} /></span><span className="track-eyebrow">Plano 125 mil</span>
         <h3>Escolha um valor.<br />Risque. Repita.</h3>
-        <p>A grade de R$ 1 a R$ 500 soma <b>{money.format(GRID_500_TOTAL)}</b>. Com a base de R$ 10 mil, o plano chega a <b>{money.format(PLAN_135_TOTAL)}</b>.</p>
-        <button className={`base-deposit ${baseDone ? "done" : ""}`} onClick={toggleBase} aria-pressed={baseDone}><span>{baseDone ? <Check size={16} /> : "00"}</span><div><b>Base de partida</b><small>{money.format(PLAN_135_BASE)}</small></div></button>
-        <div className="progress-number"><strong>{money.format(saved)}</strong><span>de {money.format(PLAN_135_TOTAL)}</span></div>
-        <div className="progress-line"><i style={{ width: `${saved / PLAN_135_TOTAL * 100}%` }} /></div>
+        <p>Marque cada valor de R$ 1 a R$ 500 uma vez. A grade completa soma exatamente <b>{money.format(GRID_500_TOTAL)}</b>, sem valor inicial obrigatório.</p>
+        <div className="progress-number"><strong>{money.format(gridSaved)}</strong><span>de {money.format(PLAN_125_TOTAL)}</span></div>
+        <div className="progress-line"><i style={{ width: `${gridSaved / PLAN_125_TOTAL * 100}%` }} /></div>
         <div className="challenge-actions"><button className="text-button" onClick={reset}><RotateCcw size={14} />Limpar grade</button></div>
         <small>Não é preciso seguir a ordem. Marque o valor que couber no dia.</small>
       </div>
@@ -258,7 +296,7 @@ export function ToolsLab() {
           {active === "meta" && <GoalTool />}
           {active === "reserva" && <ReserveTool />}
           {active === "52" && <Challenge52 />}
-          {active === "135" && <Plan135 />}
+          {active === "125" && <Plan125 />}
         </motion.div>
       </AnimatePresence>
     </div>
