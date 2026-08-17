@@ -2,6 +2,8 @@
 
 Portal gratuito de educação financeira, ferramentas e leituras editoriais independentes. A experiência foi redesenhada para separar fatos, cálculos, cenários, riscos e “Minha leitura” — sem sinais de compra ou venda.
 
+Site público: https://rgeneroso-ia.github.io/valuation-b3/
+
 ## O que já existe
 
 - home responsiva com modo claro/escuro;
@@ -12,7 +14,7 @@ Portal gratuito de educação financeira, ferramentas e leituras editoriais inde
 - desafio de 52 semanas, de R$ 5 a R$ 260, totalizando R$ 6.890;
 - Plano 125 mil: grade de R$ 1 a R$ 500 = R$ 125.250, sem valor inicial obrigatório;
 - progresso dos desafios salvo apenas no dispositivo;
-- API server-side de cotações sandbox com cache de uma hora e fallback para o último dado válido;
+- cotações atualizadas a cada hora, com Brapi como fonte principal, contingência de mercado e fallback para o último dado válido;
 - Radar compacto com PETR4, VALE3, ITUB4 e BBAS3, logotipos e atalhos para a leitura completa;
 - Radar Editorial com preços-teto datados, distância percentual e estados neutros, sem sinais de compra ou venda;
 - estrutura de dossiês, Radar, vídeo da semana, curadoria de três canais e guia de uso do Investidor10;
@@ -38,14 +40,19 @@ npm test
 npm run lint
 npx tsc --noEmit
 npm run build
+npm run build:pages
 npm audit
 ```
+
+## Publicação
+
+O GitHub Actions atualiza as quatro cotações, monta a versão estática e publica no GitHub Pages a cada alteração da `main` e, depois, uma vez por hora. `BRAPI_API_TOKEN`, quando disponível, deve existir somente nos segredos do repositório; a versão entregue ao navegador nunca contém o token.
 
 ## Arquitetura e segurança
 
 - React 19 + vinext/Vite, preparado para Cloudflare Workers/Sites.
 - Nenhum token de API é enviado ao navegador.
-- A rota `/api/market` consulta apenas uma lista fixa de tickers, autentica a Brapi no servidor e aplica cache de uma hora.
+- A rota `/api/market` e a automação do GitHub consultam apenas a lista fixa de quatro tickers; o token, quando válido, é usado somente no servidor ou no GitHub Actions.
 - Falhas externas nunca viram preço zero; a interface usa o último dado válido salvo ou um estado indisponível.
 - Não existe painel administrativo público nem autenticação simulada por parâmetro de URL.
 - Entradas das calculadoras são processadas no cliente e não são persistidas pelo servidor.

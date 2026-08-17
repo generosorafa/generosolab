@@ -26,7 +26,13 @@ export type MarketState = {
   load: () => Promise<void>;
 };
 
-const CACHE_KEY = "generoso-lab.market-cache";
+declare global {
+  interface Window {
+    __GENEROSO_MARKET_URL__?: string;
+  }
+}
+
+const CACHE_KEY = "generoso-lab.market-cache.v2";
 const REFRESH_INTERVAL = 60 * 60 * 1000;
 
 export function useMarketData(): MarketState {
@@ -37,7 +43,9 @@ export function useMarketData(): MarketState {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/market", { headers: { Accept: "application/json" } });
+      const endpoint = window.__GENEROSO_MARKET_URL__ ?? "/api/market";
+      const separator = endpoint.includes("?") ? "&" : "?";
+      const response = await fetch(`${endpoint}${separator}v=${Date.now()}`, { headers: { Accept: "application/json" } });
       const payload = await response.json() as MarketPayload;
       if (!response.ok || !payload.quotes?.length) throw new Error(payload.error ?? "Sem cotações disponíveis");
       setData(payload);

@@ -202,7 +202,7 @@ export function LandingPreview() {
       <footer className="site-footer">
         <div className="footer-main"><Brand /><p>Educação financeira independente, ferramentas transparentes e curiosidade disciplinada.</p><a href="#inicio">Voltar ao topo ↑</a></div>
         <div className="footer-disclosure"><ShieldCheck size={18} /><p><b>Aviso importante:</b> o Generoso Lab produz conteúdo educacional e opiniões editoriais. Não presta consultoria, análise profissional registrada, gestão ou recomendação individualizada de investimentos. Rentabilidade passada não garante resultados futuros. Verifique fontes, riscos, custos e adequação à sua realidade antes de decidir.</p></div>
-        <div className="footer-bottom"><span>© 2026 Generoso Lab</span><span className="footer-links"><a href="/metodologia">Metodologia</a><a href="/privacidade">Privacidade</a><a href="/termos">Termos</a></span><span>Sem anúncios · sem afiliados · sem cadastro</span></div>
+        <div className="footer-bottom"><span>© 2026 Generoso Lab</span><span className="footer-links"><a href="metodologia/">Metodologia</a><a href="privacidade/">Privacidade</a><a href="termos/">Termos</a></span><span>Sem anúncios · sem afiliados · sem cadastro</span></div>
       </footer>
     </main>
   );

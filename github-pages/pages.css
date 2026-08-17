@@ -1,0 +1,8 @@
+:root {
+  --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-geist-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+body {
+  min-width: 320px;
+}

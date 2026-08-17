@@ -1,0 +1,39 @@
+{
+  "source": "brapi.dev com contingência de mercado",
+  "delayed": true,
+  "fetchedAt": "2026-08-17T23:00:56.045Z",
+  "quotes": [
+    {
+      "symbol": "PETR4",
+      "name": "Petrobras PN",
+      "price": 42.47,
+      "change": 0.9,
+      "marketTime": "2026-08-17T21:31:30.000Z",
+      "logoUrl": "https://icons.brapi.dev/icons/PETR4.svg"
+    },
+    {
+      "symbol": "VALE3",
+      "name": "Vale ON",
+      "price": 71.41,
+      "change": 0.15,
+      "marketTime": "2026-08-17T21:31:30.000Z",
+      "logoUrl": "https://icons.brapi.dev/icons/VALE3.svg"
+    },
+    {
+      "symbol": "ITUB4",
+      "name": "Itaú Unibanco PN",
+      "price": 38.38,
+      "change": -1.59,
+      "marketTime": "2026-08-17T21:31:30.000Z",
+      "logoUrl": "https://icons.brapi.dev/icons/ITUB4.svg"
+    },
+    {
+      "symbol": "BBAS3",
+      "name": "Banco do Brasil ON",
+      "price": 17.95,
+      "change": -2.339499455930358,
+      "marketTime": "2026-08-17T20:05:35.000Z",
+      "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
+    }
+  ]
+}
