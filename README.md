@@ -46,7 +46,7 @@ npm audit
 
 ## Publicação
 
-O GitHub Actions atualiza as quatro cotações, monta a versão estática e publica no GitHub Pages a cada alteração da `main` e, depois, uma vez por hora. `BRAPI_API_TOKEN`, quando disponível, deve existir somente nos segredos do repositório; a versão entregue ao navegador nunca contém o token.
+O GitHub Actions atualiza as quatro cotações, monta a versão estática e publica no GitHub Pages a cada alteração da `main` e, nos dias úteis, uma vez por hora durante a janela do mercado. `BRAPI_API_TOKEN`, quando disponível, deve existir somente nos segredos do repositório; a versão entregue ao navegador nunca contém o token.
 
 ## Arquitetura e segurança
 

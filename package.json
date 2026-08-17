@@ -10,6 +10,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "build:pages": "vite build --config vite.pages.config.ts && node scripts/finalize-pages.mjs",
+    "sync:pages": "node scripts/sync-pages-root.mjs",
     "update:market": "node scripts/update-market.mjs",
     "start": "vinext start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern pages-dist --ignore-pattern .next",
