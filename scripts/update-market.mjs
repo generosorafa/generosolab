@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 const symbols = ["PETR4", "VALE3", "ITUB4", "BBAS3"];
 const destination = resolve("public", "market.json");
 const token = process.env.BRAPI_API_TOKEN?.trim();
+const fallbackSymbols = [];
 
 const companyNames = {
   PETR4: "Petrobras PN",
@@ -61,6 +62,7 @@ const results = await Promise.allSettled(symbols.map(async (symbol) => {
   try {
     return await fetchFromBrapi(symbol);
   } catch {
+    fallbackSymbols.push(symbol);
     return fetchFromYahoo(symbol);
   }
 }));
@@ -73,10 +75,10 @@ if (!quotes.length) {
   console.warn("A fonte não respondeu; mantendo o último arquivo válido.");
 } else {
   await writeFile(destination, `${JSON.stringify({
-    source: "brapi.dev com contingência de mercado",
+    source: fallbackSymbols.length ? "brapi.dev com contingência de mercado" : "brapi.dev",
     delayed: true,
     fetchedAt: new Date().toISOString(),
     quotes,
   }, null, 2)}\n`);
-  console.log(`${quotes.length} cotações atualizadas.`);
+  console.log(`${quotes.length} cotações atualizadas. ${fallbackSymbols.length ? `Contingência usada em: ${fallbackSymbols.join(", ")}.` : "Brapi respondeu por todos os ativos."}`);
 }

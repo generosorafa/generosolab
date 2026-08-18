@@ -2,7 +2,7 @@
 
 Portal gratuito de educação financeira, ferramentas e leituras editoriais independentes. A experiência foi redesenhada para separar fatos, cálculos, cenários, riscos e “Minha leitura” — sem sinais de compra ou venda.
 
-Site público: https://rgeneroso-ia.github.io/valuation-b3/
+Site público: https://generosorafa.github.io/generosolab/
 
 ## O que já existe
 
