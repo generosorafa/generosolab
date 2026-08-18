@@ -1,17 +1,15 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { EDITORIAL_REFERENCES } from "../app/lib/editorial-radar.js";
 
-const symbols = ["PETR4", "VALE3", "ITUB4", "BBAS3"];
+const symbols = EDITORIAL_REFERENCES.map(({ symbol }) => symbol);
 const destination = resolve("public", "market.json");
 const token = process.env.BRAPI_API_TOKEN?.trim();
 const fallbackSymbols = [];
 
-const companyNames = {
-  PETR4: "Petrobras PN",
-  VALE3: "Vale ON",
-  ITUB4: "Itaú Unibanco PN",
-  BBAS3: "Banco do Brasil ON",
-};
+const companyNames = Object.fromEntries(
+  EDITORIAL_REFERENCES.map(({ symbol, company }) => [symbol, company]),
+);
 
 async function fetchFromBrapi(symbol) {
   const request = async (authorization) => {

@@ -11,12 +11,9 @@ type BrapiQuote = {
   logourl?: string;
 };
 
-const COMPANY_NAMES: Record<string, string> = {
-  PETR4: "Petrobras PN",
-  VALE3: "Vale ON",
-  ITUB4: "Itaú Unibanco PN",
-  BBAS3: "Banco do Brasil ON",
-};
+const COMPANY_NAMES = Object.fromEntries(
+  EDITORIAL_REFERENCES.map(({ symbol, company }) => [symbol, company]),
+) as Record<string, string>;
 
 async function fetchFromBrapi(ticker: string, token?: string) {
   const request = (authorization?: string) => fetch(`https://brapi.dev/api/quote/${ticker}?fundamental=false`, {
