@@ -1,7 +1,7 @@
 {
-  "source": "brapi.dev com contingência de mercado",
+  "source": "brapi.dev",
   "delayed": true,
-  "fetchedAt": "2026-08-17T23:08:47.761Z",
+  "fetchedAt": "2026-08-18T00:07:17.904Z",
   "quotes": [
     {
       "symbol": "PETR4",
@@ -31,8 +31,8 @@
       "symbol": "BBAS3",
       "name": "Banco do Brasil ON",
       "price": 17.95,
-      "change": -2.339499455930358,
-      "marketTime": "2026-08-17T20:05:35.000Z",
+      "change": -2.34,
+      "marketTime": "2026-08-17T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
     }
   ]
