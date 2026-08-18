@@ -7,7 +7,7 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: resolve(projectRoot, "github-pages"),
-  base: "/valuation-b3/",
+  base: "/generosolab/",
   publicDir: resolve(projectRoot, "public"),
   plugins: [react()],
   resolve: {

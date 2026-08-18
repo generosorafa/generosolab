@@ -19,7 +19,7 @@ async function normalizeGeneratedText(directory) {
     if (entry.isDirectory()) await normalizeGeneratedText(path);
     if (entry.isFile() && /\.(?:css|html|js)$/.test(entry.name)) {
       const source = await readFile(path, "utf8");
-      await writeFile(path, source.replace(/[ \t]+$/gm, "").replace(/^ +\t/gm, "\t"));
+      await writeFile(path, source.replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/^ +\t/gm, "\t"));
     }
   }
 }
@@ -28,11 +28,16 @@ for (const directory of directories) {
   const target = safeTarget(directory);
   await rm(target, { recursive: true, force: true });
   await cp(resolve(buildRoot, directory), target, { recursive: true });
+  await normalizeGeneratedText(target);
 }
 
 for (const file of files) {
-  await copyFile(resolve(buildRoot, file), safeTarget(file));
+  const target = safeTarget(file);
+  await copyFile(resolve(buildRoot, file), target);
+  if (/\.html$/.test(file)) {
+    const source = await readFile(target, "utf8");
+    await writeFile(target, source.replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/^ +\t/gm, "\t"));
+  }
 }
 
-await normalizeGeneratedText(safeTarget("assets"));
 await writeFile(safeTarget(".nojekyll"), "");
