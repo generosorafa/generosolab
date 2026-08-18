@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- logotipos pequenos e dinâmicos fornecidos pela API */
 
 import { ArrowDown, RefreshCw, WifiOff } from "lucide-react";
-import { EDITORIAL_REFERENCES } from "../lib/editorial-radar.js";
+import { FEATURED_EDITORIAL_REFERENCES } from "../lib/editorial-radar.js";
 import type { MarketState, Quote } from "./use-market-data";
 
 const price = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
@@ -23,7 +23,7 @@ export function MarketBoard({ market }: { market: MarketState }) {
       <div className="quotes-row">
         {loading && !data && Array.from({ length: 4 }, (_, index) => <div className="quote skeleton" key={index}><i /><i /></div>)}
         {!loading && !data && <div className="market-empty"><WifiOff size={15} /><span>Dados indisponíveis agora. Nenhum preço foi substituído por zero.</span></div>}
-        {data && EDITORIAL_REFERENCES.map((reference) => {
+        {data && FEATURED_EDITORIAL_REFERENCES.map((reference) => {
           const quote = data.quotes.find((item) => item.symbol === reference.symbol);
           return <a className={`quote ${quote ? "" : "unavailable"}`} key={reference.symbol} href={`#editorial-${reference.symbol}`} aria-label={`Ver referência editorial de ${reference.symbol}`}>
             <QuoteLogo quote={quote} symbol={reference.symbol} />
