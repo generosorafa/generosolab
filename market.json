@@ -1,30 +1,30 @@
 {
   "source": "brapi.dev",
   "delayed": true,
-  "fetchedAt": "2026-08-20T19:44:56.730Z",
+  "fetchedAt": "2026-08-20T20:45:25.465Z",
   "quotes": [
     {
       "symbol": "PETR4",
       "name": "Petrobras",
-      "price": 44.33,
-      "change": 2.83,
-      "marketTime": "2026-08-20T19:43:30.000Z",
+      "price": 44.32,
+      "change": 2.81,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/PETR4.svg"
     },
     {
       "symbol": "VALE3",
       "name": "Vale",
-      "price": 74,
-      "change": 2.59,
-      "marketTime": "2026-08-20T19:43:30.000Z",
+      "price": 74.02,
+      "change": 2.62,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/VALE3.svg"
     },
     {
       "symbol": "ITUB4",
       "name": "Itaú Unibanco",
-      "price": 37.55,
-      "change": -2.14,
-      "marketTime": "2026-08-20T19:44:30.000Z",
+      "price": 37.51,
+      "change": -2.24,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB4.svg"
     },
     {
@@ -32,7 +32,7 @@
       "name": "Banco do Brasil",
       "price": 18.04,
       "change": -0.22,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
     },
     {
@@ -40,47 +40,47 @@
       "name": "Banco ABC Brasil",
       "price": 22.3,
       "change": 0.45,
-      "marketTime": "2026-08-20T19:44:30.000Z",
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ABCB4.svg"
     },
     {
       "symbol": "BBDC3",
       "name": "Bradesco",
-      "price": 13.95,
-      "change": -1.34,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "price": 13.93,
+      "change": -1.49,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBDC3.svg"
     },
     {
       "symbol": "BBSE3",
       "name": "BB Seguridade",
-      "price": 36.62,
-      "change": -0.11,
-      "marketTime": "2026-08-20T19:44:30.000Z",
+      "price": 36.55,
+      "change": -0.3,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBSE3.svg"
     },
     {
       "symbol": "CMIG4",
       "name": "Cemig",
-      "price": 9.92,
-      "change": -2.46,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "price": 9.95,
+      "change": -2.16,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/CMIG4.svg"
     },
     {
       "symbol": "ITSA4",
       "name": "Itaúsa",
-      "price": 12.18,
-      "change": -1.62,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "price": 12.19,
+      "change": -1.53,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITSA4.svg"
     },
     {
       "symbol": "ITUB3",
       "name": "Itaú Unibanco",
-      "price": 40.49,
-      "change": -2.08,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "price": 40.33,
+      "change": -2.47,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB3.svg"
     },
     {
@@ -88,23 +88,23 @@
       "name": "Klabin",
       "price": 3.62,
       "change": 2.55,
-      "marketTime": "2026-08-20T19:39:30.000Z",
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/KLBN4.svg"
     },
     {
       "symbol": "SAPR4",
       "name": "Sanepar",
-      "price": 6.38,
-      "change": 2.24,
-      "marketTime": "2026-08-20T19:42:30.000Z",
+      "price": 6.39,
+      "change": 2.4,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/SAPR4.svg"
     },
     {
       "symbol": "WIZC3",
       "name": "Wiz Co",
-      "price": 7.52,
-      "change": 0.27,
-      "marketTime": "2026-08-20T19:41:30.000Z",
+      "price": 7.57,
+      "change": 0.93,
+      "marketTime": "2026-08-20T20:44:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/WIZC3.svg"
     }
   ]
