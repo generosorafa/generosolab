@@ -1,62 +1,62 @@
 {
   "source": "brapi.dev",
   "delayed": true,
-  "fetchedAt": "2026-08-21T17:44:06.233Z",
+  "fetchedAt": "2026-08-21T18:55:24.132Z",
   "quotes": [
     {
       "symbol": "PETR4",
       "name": "Petrobras",
-      "price": 44.24,
-      "change": -0.18,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "price": 44.42,
+      "change": 0.23,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/PETR4.svg"
     },
     {
       "symbol": "VALE3",
       "name": "Vale",
-      "price": 74.99,
-      "change": 1.31,
-      "marketTime": "2026-08-21T17:42:30.000Z",
+      "price": 75.08,
+      "change": 1.43,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/VALE3.svg"
     },
     {
       "symbol": "ITUB4",
       "name": "Itaú Unibanco",
-      "price": 38.43,
-      "change": 2.45,
-      "marketTime": "2026-08-21T17:42:30.000Z",
+      "price": 38.6,
+      "change": 2.91,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB4.svg"
     },
     {
       "symbol": "BBAS3",
       "name": "Banco do Brasil",
-      "price": 18.45,
-      "change": 2.27,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "price": 18.41,
+      "change": 2.05,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
     },
     {
       "symbol": "ABCB4",
       "name": "Banco ABC Brasil",
-      "price": 22.74,
-      "change": 1.97,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "price": 22.78,
+      "change": 2.15,
+      "marketTime": "2026-08-21T18:51:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ABCB4.svg"
     },
     {
       "symbol": "BBDC3",
       "name": "Bradesco",
-      "price": 14.34,
-      "change": 2.94,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "price": 14.33,
+      "change": 2.87,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBDC3.svg"
     },
     {
       "symbol": "BBSE3",
       "name": "BB Seguridade",
-      "price": 37.26,
-      "change": 1.94,
-      "marketTime": "2026-08-21T17:42:30.000Z",
+      "price": 37.15,
+      "change": 1.64,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBSE3.svg"
     },
     {
@@ -64,31 +64,31 @@
       "name": "Cemig",
       "price": 10.09,
       "change": 1.41,
-      "marketTime": "2026-08-21T17:42:30.000Z",
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/CMIG4.svg"
     },
     {
       "symbol": "ITSA4",
       "name": "Itaúsa",
-      "price": 12.53,
-      "change": 2.79,
-      "marketTime": "2026-08-21T17:42:30.000Z",
+      "price": 12.54,
+      "change": 2.87,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITSA4.svg"
     },
     {
       "symbol": "ITUB3",
       "name": "Itaú Unibanco",
-      "price": 41.14,
-      "change": 2.01,
-      "marketTime": "2026-08-21T17:35:30.000Z",
+      "price": 41.33,
+      "change": 2.48,
+      "marketTime": "2026-08-21T18:53:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB3.svg"
     },
     {
       "symbol": "KLBN4",
       "name": "Klabin",
-      "price": 3.63,
-      "change": 0.28,
-      "marketTime": "2026-08-21T17:41:30.000Z",
+      "price": 3.66,
+      "change": 1.1,
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/KLBN4.svg"
     },
     {
@@ -96,15 +96,15 @@
       "name": "Sanepar",
       "price": 6.5,
       "change": 1.72,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "marketTime": "2026-08-21T18:54:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/SAPR4.svg"
     },
     {
       "symbol": "WIZC3",
       "name": "Wiz Co",
-      "price": 7.79,
-      "change": 2.91,
-      "marketTime": "2026-08-21T17:43:30.000Z",
+      "price": 7.82,
+      "change": 3.3,
+      "marketTime": "2026-08-21T18:50:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/WIZC3.svg"
     }
   ]
