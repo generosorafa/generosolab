@@ -28,6 +28,26 @@ export function referenceDistance(currentPrice, ceilingPrice) {
   return ((currentPrice / ceilingPrice) - 1) * 100;
 }
 
+/**
+ * Ordena pela distância assinada: os maiores percentuais abaixo da referência
+ * aparecem primeiro; cotações indisponíveis ficam no fim.
+ */
+export function orderReferencesByDistance(references, quotes = []) {
+  const prices = new Map(
+    quotes
+      .filter(({ symbol, price }) => typeof symbol === "string" && Number.isFinite(price))
+      .map(({ symbol, price }) => [symbol, price]),
+  );
+
+  return [...references].sort((left, right) => {
+    const leftDistance = referenceDistance(prices.get(left.symbol), left.ceiling);
+    const rightDistance = referenceDistance(prices.get(right.symbol), right.ceiling);
+    const leftOrder = Number.isFinite(leftDistance) ? leftDistance : Number.POSITIVE_INFINITY;
+    const rightOrder = Number.isFinite(rightDistance) ? rightDistance : Number.POSITIVE_INFINITY;
+    return leftOrder - rightOrder;
+  });
+}
+
 /** Faixas neutras com zona de proximidade de cinco pontos percentuais. */
 export function referenceStatus(distance) {
   if (!Number.isFinite(distance)) return "unavailable";
