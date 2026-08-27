@@ -1,14 +1,14 @@
 {
   "source": "brapi.dev",
   "delayed": true,
-  "fetchedAt": "2026-08-27T14:39:48.083Z",
+  "fetchedAt": "2026-08-27T14:41:01.488Z",
   "quotes": [
     {
       "symbol": "PETR4",
       "name": "Petrobras",
-      "price": 41.37,
-      "change": -0.19,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "price": 41.31,
+      "change": -0.34,
+      "marketTime": "2026-08-27T14:40:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/PETR4.svg"
     },
     {
@@ -30,9 +30,9 @@
     {
       "symbol": "BBAS3",
       "name": "Banco do Brasil",
-      "price": 19.74,
-      "change": 1.13,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "price": 19.72,
+      "change": 1.02,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
     },
     {
@@ -40,7 +40,7 @@
       "name": "Banco ABC Brasil",
       "price": 23.03,
       "change": -0.04,
-      "marketTime": "2026-08-27T14:34:30.000Z",
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ABCB4.svg"
     },
     {
@@ -70,17 +70,17 @@
     {
       "symbol": "ITSA4",
       "name": "Itaúsa",
-      "price": 12.85,
-      "change": -0.39,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "price": 12.82,
+      "change": -0.62,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITSA4.svg"
     },
     {
       "symbol": "ITUB3",
       "name": "Itaú Unibanco",
-      "price": 42.3,
-      "change": -0.7,
-      "marketTime": "2026-08-27T14:37:30.000Z",
+      "price": 42.27,
+      "change": -0.77,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB3.svg"
     },
     {
@@ -94,9 +94,9 @@
     {
       "symbol": "SAPR4",
       "name": "Sanepar",
-      "price": 6.54,
-      "change": 0.15,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "price": 6.53,
+      "change": 0,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/SAPR4.svg"
     },
     {
@@ -110,17 +110,17 @@
     {
       "symbol": "CSUD3",
       "name": "CSU Digital",
-      "price": 13.56,
-      "change": 0.97,
-      "marketTime": "2026-08-27T14:29:30.000Z",
+      "price": 13.62,
+      "change": 1.41,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/CSUD3.svg"
     },
     {
       "symbol": "CPFE3",
       "name": "CPFL Energia",
-      "price": 44.17,
-      "change": -0.85,
-      "marketTime": "2026-08-27T14:37:30.000Z",
+      "price": 44.13,
+      "change": -0.94,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/CPFE3.svg"
     },
     {
@@ -136,7 +136,7 @@
       "name": "GGR Covepi Renda",
       "price": 9.04,
       "change": 0,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "marketTime": "2026-08-27T14:40:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/GGRC11.svg"
     },
     {
@@ -144,15 +144,15 @@
       "name": "Guardian Real Estate",
       "price": 8.36,
       "change": 0.6,
-      "marketTime": "2026-08-27T14:38:30.000Z",
+      "marketTime": "2026-08-27T14:40:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/GARE11.svg"
     },
     {
       "symbol": "PORD11",
       "name": "Polo Crédito Imobiliário",
-      "price": 8.33,
-      "change": 0.73,
-      "marketTime": "2026-08-27T14:35:30.000Z",
+      "price": 8.3,
+      "change": 0.36,
+      "marketTime": "2026-08-27T14:39:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/PORD11.svg"
     }
   ]
