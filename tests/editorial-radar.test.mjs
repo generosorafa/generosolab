@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { EDITORIAL_REFERENCES, referenceDistance, referenceStatus } from "../app/lib/editorial-radar.js";
+import { EDITORIAL_REFERENCES, orderReferencesByDistance, referenceDistance, referenceStatus } from "../app/lib/editorial-radar.js";
 
 test("preserva as dezenove referências editoriais informadas", () => {
   assert.deepEqual(EDITORIAL_REFERENCES.map(({ symbol, ceiling, effectiveFrom, kind }) => [symbol, ceiling, effectiveFrom, kind]), [
@@ -40,4 +40,26 @@ test("classifica as faixas editoriais neutras", () => {
   assert.equal(referenceStatus(5), "near");
   assert.equal(referenceStatus(5.01), "above");
   assert.equal(referenceStatus(null), "unavailable");
+});
+
+test("ordena da maior margem abaixo do teto até os ativos acima", () => {
+  const references = [
+    { symbol: "NEAR3", ceiling: 100 },
+    { symbol: "ABOVE3", ceiling: 100 },
+    { symbol: "LOW3", ceiling: 100 },
+    { symbol: "MISSING3", ceiling: 100 },
+  ];
+  const quotes = [
+    { symbol: "NEAR3", price: 92 },
+    { symbol: "ABOVE3", price: 118 },
+    { symbol: "LOW3", price: 82 },
+  ];
+
+  assert.deepEqual(orderReferencesByDistance(references, quotes).map(({ symbol }) => symbol), [
+    "LOW3",
+    "NEAR3",
+    "ABOVE3",
+    "MISSING3",
+  ]);
+  assert.deepEqual(references.map(({ symbol }) => symbol), ["NEAR3", "ABOVE3", "LOW3", "MISSING3"]);
 });

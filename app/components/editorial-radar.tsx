@@ -3,8 +3,8 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { CalendarDays, Clock3, Gauge, RefreshCw, ShieldCheck } from "lucide-react";
-import { EDITORIAL_REFERENCES, referenceDistance, referenceStatus } from "../lib/editorial-radar.js";
+import { ArrowDownWideNarrow, CalendarDays, Clock3, Gauge, RefreshCw, ShieldCheck } from "lucide-react";
+import { EDITORIAL_REFERENCES, orderReferencesByDistance, referenceDistance, referenceStatus } from "../lib/editorial-radar.js";
 import type { MarketState, Quote } from "./use-market-data";
 
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
@@ -45,8 +45,10 @@ function formatEffectiveDate(reference: { effectiveFrom: string; effectivePrecis
 export function EditorialRadar({ market }: { market: MarketState }) {
   const { data, loading, stale, load } = market;
   const [filter, setFilter] = useState<EditorialFilter>("all");
+  const [sortByDistance, setSortByDistance] = useState(true);
   const reducedMotion = useReducedMotion();
   const filteredReferences = EDITORIAL_REFERENCES.filter((reference) => filter === "all" || reference.kind === filter);
+  const visibleReferences = sortByDistance ? orderReferencesByDistance(filteredReferences, data?.quotes ?? []) : filteredReferences;
   const stockCount = EDITORIAL_REFERENCES.filter(({ kind }) => kind === "stock").length;
   const fiiCount = EDITORIAL_REFERENCES.length - stockCount;
 
@@ -61,17 +63,26 @@ export function EditorialRadar({ market }: { market: MarketState }) {
         <div className="editorial-live" aria-live="polite"><span className={`live-dot ${stale ? "stale" : ""}`} /><b>{stale ? "Exibindo o último dado válido" : "Cotações conectadas à Brapi"}</b><small>Atualização automática a cada hora enquanto o site estiver aberto</small></div>
 
         <div className="editorial-toolbar">
-          <div className="editorial-filters" role="group" aria-label="Filtrar o Radar Editorial">
-            {filters.map(({ value, label }) => {
-              const count = value === "all" ? EDITORIAL_REFERENCES.length : value === "stock" ? stockCount : fiiCount;
-              return <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}><span>{label}</span><b>{count}</b></button>;
-            })}
+          <div className="editorial-controls">
+            <div className="editorial-filters" role="group" aria-label="Filtrar o Radar Editorial">
+              {filters.map(({ value, label }) => {
+                const count = value === "all" ? EDITORIAL_REFERENCES.length : value === "stock" ? stockCount : fiiCount;
+                return <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}><span>{label}</span><b>{count}</b></button>;
+              })}
+            </div>
+            <button
+              className="editorial-distance-sort"
+              type="button"
+              aria-pressed={sortByDistance}
+              onClick={() => setSortByDistance((active) => !active)}
+              title="Ordena do maior percentual abaixo do teto para o maior percentual acima"
+            ><ArrowDownWideNarrow size={13} /><span>Mais abaixo do teto</span></button>
           </div>
-          <span className="editorial-visible-count" aria-live="polite">{filteredReferences.length} {filteredReferences.length === 1 ? "ativo visível" : "ativos visíveis"}</span>
+          <span className="editorial-visible-count" aria-live="polite">{visibleReferences.length} {visibleReferences.length === 1 ? "ativo visível" : "ativos visíveis"}{sortByDistance ? " · maior margem primeiro" : ""}</span>
         </div>
 
         <div className="editorial-grid">
-          {filteredReferences.map((reference, index) => {
+          {visibleReferences.map((reference, index) => {
             const quote = data?.quotes.find((item) => item.symbol === reference.symbol);
             const distance = quote ? referenceDistance(quote.price, reference.ceiling) : null;
             const status = referenceStatus(distance) as keyof typeof statusCopy;
@@ -113,7 +124,7 @@ export function EditorialRadar({ market }: { market: MarketState }) {
           })}
         </div>
 
-        <div className="editorial-method"><ShieldCheck size={19} /><div><b>Como este radar deve ser lido</b><p>O preço-teto é uma referência editorial informada manualmente e não muda junto com a cotação. A API atualiza somente o preço de mercado. Uma alteração futura ganhará nova data e histórico — nunca será reescrita silenciosamente.</p></div></div>
+        <div className="editorial-method"><ShieldCheck size={19} /><div><b>Como este radar deve ser lido</b><p>O preço-teto é uma referência editorial informada manualmente e não muda junto com a cotação. A API atualiza somente o preço de mercado. Ordenar pela distância mostra apenas essa diferença matemática: não classifica qualidade, risco ou atratividade e não é recomendação de compra. Uma alteração futura ganhará nova data e histórico — nunca será reescrita silenciosamente.</p></div></div>
       </div>
     </section>
   );
