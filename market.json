@@ -1,14 +1,14 @@
 {
   "source": "brapi.dev com contingência de mercado",
   "delayed": true,
-  "fetchedAt": "2026-09-15T21:19:19.495Z",
+  "fetchedAt": "2026-09-16T00:18:08.424Z",
   "quotes": [
     {
       "symbol": "PETR4",
       "name": "Petrobras",
       "price": 50.43,
       "change": 3.09,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "marketTime": "2026-09-15T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/PETR4.svg"
     },
     {
@@ -24,15 +24,15 @@
       "name": "Itaú Unibanco",
       "price": 42.67,
       "change": 0.76,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "marketTime": "2026-09-15T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITUB4.svg"
     },
     {
       "symbol": "BBAS3",
       "name": "Banco do Brasil",
       "price": 22.04,
-      "change": -0.36,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "change": -0.36166365280290164,
+      "marketTime": "2026-09-15T20:05:48.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBAS3.svg"
     },
     {
@@ -40,7 +40,7 @@
       "name": "Banco ABC Brasil",
       "price": 24.69,
       "change": -1.44,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "marketTime": "2026-09-15T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ABCB4.svg"
     },
     {
@@ -56,7 +56,7 @@
       "name": "BB Seguridade",
       "price": 40.16,
       "change": 0.98,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "marketTime": "2026-09-15T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/BBSE3.svg"
     },
     {
@@ -71,8 +71,8 @@
       "symbol": "ITSA4",
       "name": "Itaúsa",
       "price": 14.16,
-      "change": 0.78,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "change": 0.782918149466188,
+      "marketTime": "2026-09-15T20:05:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/ITSA4.svg"
     },
     {
@@ -103,8 +103,8 @@
       "symbol": "WIZC3",
       "name": "Wiz Co",
       "price": 7.97,
-      "change": 1.27,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "change": 1.270648030495548,
+      "marketTime": "2026-09-15T20:03:00.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/WIZC3.svg"
     },
     {
@@ -144,7 +144,7 @@
       "name": "Guardian Real Estate",
       "price": 8.45,
       "change": 0.24,
-      "marketTime": "2026-09-15T21:18:30.000Z",
+      "marketTime": "2026-09-15T21:31:30.000Z",
       "logoUrl": "https://icons.brapi.dev/icons/GARE11.svg"
     },
     {
